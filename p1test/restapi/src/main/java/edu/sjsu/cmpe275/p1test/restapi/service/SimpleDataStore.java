@@ -2,8 +2,8 @@ package edu.sjsu.cmpe275.p1test.restapi.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,13 +14,13 @@ import edu.sjsu.cmpe275.p1test.restapi.pojo.ImageFile;
 public class SimpleDataStore {
 	
 	// Not that this is no the most effect way for storing data but it will do for now
-	private Map<String, Map<String, ImageFile>> dataStore;
-	private List<String> usedUuids;
+	private Map<String, ImageFile> imagesByUuid;
+	private Map<String, ArrayList<String>> listOfUuidsForEachUser;
 	
 	@Autowired
 	public SimpleDataStore() {
-		dataStore = new HashMap<String, Map<String, ImageFile>>();
-		usedUuids = new ArrayList<String>();
+		imagesByUuid 			= new HashMap<String, ImageFile>();
+		listOfUuidsForEachUser 	= new HashMap<String, ArrayList<String>>();
 	}
 	
 	
@@ -29,7 +29,7 @@ public class SimpleDataStore {
 	 * @return String[] containing the list of users
 	 */
 	public String[] getListOfUsers() {
-		return dataStore.keySet().toArray(new String[dataStore.size()]);
+		return listOfUuidsForEachUser.keySet().toArray(new String[listOfUuidsForEachUser.size()]);
 	}
 	
 	
@@ -51,14 +51,99 @@ public class SimpleDataStore {
 			throw new IllegalArgumentException("username cannot be empty");
 		}
 		
-		
-		// Get User's File
-		Map<String, ImageFile> filesForUser = dataStore.get(user);
-		if(filesForUser != null) {
-			return filesForUser.keySet().toArray(new String[filesForUser.size()]);
+		// returns data in the map, null if user is not found or does not exist
+		ArrayList<String> uuidsForUser = listOfUuidsForEachUser.get(user);
+		return uuidsForUser == null ? null : uuidsForUser.toArray(new String[uuidsForUser.size()]);
+	}
+	
+	
+	
+	/**
+	 * Save file with username and data
+	 * @param user
+	 * @param imageFile
+	 * @return
+	 */
+	public String saveImage(String user, ImageFile imageFile) {
+		// Argument validation
+		if(user == null || imageFile == null) {
+			throw new NullPointerException();
+		}
+		if(user.trim().length() <= 0) {
+			throw new IllegalArgumentException("username cannot be empty");
 		}
 		
-		// return null if user is not found
-		return null;
+		// Generate UUID
+		String uuid = UUID.randomUUID().toString();
+		imageFile.setUuid(uuid);
+		
+		// update data store
+		imagesByUuid.put(uuid, imageFile);
+		ArrayList<String> uuidsForUser = listOfUuidsForEachUser.get(user);
+		if(uuidsForUser == null) {
+			// Add user if not existant
+			uuidsForUser = new ArrayList<String>();
+			listOfUuidsForEachUser.put(user, uuidsForUser);
+		}
+		uuidsForUser.add(uuid);
+		
+		// return uuid
+		return uuid;
+	}
+	
+	
+	/**
+	 * Get Image by UUID
+	 * @param uuid
+	 * @return
+	 */
+	public ImageFile getImageByUuid(String uuid) {
+		// Argument validation
+		if(uuid == null) {
+			throw new NullPointerException();
+		}
+		if(uuid.trim().length() <= 0) {
+			throw new IllegalArgumentException("uuid cannot be empty");
+		}
+		
+		return imagesByUuid.get(uuid);
+	}
+	
+	/**
+	 * Update a file
+	 * TODO throw error if file does not exist
+	 * 
+	 * @param uuid
+	 * @param imageFile
+	 * @return
+	 */
+	public ImageFile updateImageByUuid(String uuid, ImageFile imageFile) {
+		// Argument validation
+		if(uuid == null) {
+			throw new NullPointerException();
+		}
+		if(uuid.trim().length() <= 0) {
+			throw new IllegalArgumentException("uuid cannot be empty");
+		}
+		
+		return imagesByUuid.put(uuid, imageFile);
+	}
+	
+	/**
+	 * Delete a file
+	 * TODO update listOfUuidsForEachUser
+	 * @param uuid
+	 * @return
+	 */
+	public ImageFile deleteImageByUuid(String uuid) {
+		// Argument validation
+		if(uuid == null) {
+			throw new NullPointerException();
+		}
+		if(uuid.trim().length() <= 0) {
+			throw new IllegalArgumentException("uuid cannot be empty");
+		}
+		
+		return imagesByUuid.remove(uuid);
 	}
 }
