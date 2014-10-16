@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.PostConstruct;
+
 import org.springframework.stereotype.Service;
 
 import edu.sjsu.cmpe275.p1test.restapi.pojo.ImageFile;
@@ -17,8 +18,8 @@ public class SimpleDataStore {
 	private Map<String, ImageFile> imagesByUuid;
 	private Map<String, ArrayList<String>> listOfUuidsForEachUser;
 	
-	@Autowired
-	public SimpleDataStore() {
+	@PostConstruct
+	private void postConstruct() {
 		imagesByUuid 			= new HashMap<String, ImageFile>();
 		listOfUuidsForEachUser 	= new HashMap<String, ArrayList<String>>();
 	}

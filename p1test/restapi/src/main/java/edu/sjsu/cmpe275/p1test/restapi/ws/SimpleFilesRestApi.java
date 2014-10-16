@@ -7,10 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController(value="/api/images")
+@RestController
+@RequestMapping(value="/api/images")
 public class SimpleFilesRestApi {
 	
-	@RequestMapping(value = "/", method=RequestMethod.POST, produces = "application/json")
+	@RequestMapping(value = {"", "/"}, method=RequestMethod.POST, produces = "application/json")
 	public Map<String, Object> uploadFileToUser(@PathVariable("user") String user) {
 		// TODO 
 		return null;

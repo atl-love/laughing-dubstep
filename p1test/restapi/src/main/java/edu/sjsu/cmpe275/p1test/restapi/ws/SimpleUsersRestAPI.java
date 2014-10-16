@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.sjsu.cmpe275.p1test.restapi.service.SimpleDataStore;
 
 
-@RestController(value = "/api/users")
+@RestController
+@RequestMapping(value = "/api/users")
 public class SimpleUsersRestAPI {
 	
 	@Autowired
@@ -20,7 +21,7 @@ public class SimpleUsersRestAPI {
 	 * Maps to "{serverHostName}/api/users/"
 	 * @return
 	 */
-	@RequestMapping(value = "/", method=RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = {"", "/"}, method=RequestMethod.GET, produces = "application/json")
 	public String[] getListOfUsers() {
 		return dataServices.getListOfUsers();
 	}
