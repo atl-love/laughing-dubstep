@@ -1,0 +1,18 @@
+# Binary Files
+####################
+*.class
+*.jar
+
+# Eclipse Files
+####################
+.classpath
+.project
+.metadata
+.gradle
+
+# Eclipse Project
+####################
+.settings/
+bin/
+target/
+tmp/

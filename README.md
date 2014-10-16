@@ -5,10 +5,10 @@ Fall 2014 CMPE 275 Project(s) Repo
 
 Directories:
 -----
-- _Project 1 Base: The base code given to us by Prof. J. Gash
-- Project 1: Project/Doc for Project 1
-- _Project 2 Base: (TBD) Base code given to us by Prof. J. Gash
-- Project 2: Project/Doc for Project 2
+- p1test: Sample/test code and/or docs for use for the final build of project 1
+- p1final: Final project 1 code
+- p2test: Sample/test code and/or docs for use for the final build of project 2
+- p2final: Final project 2 code
 
 
 Notes:
