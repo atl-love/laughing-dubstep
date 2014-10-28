@@ -21,8 +21,14 @@
             <artifactId>netty-all</artifactId>
             <version>4.0.23.Final</version>
         </dependency>
-        
-        
+
+        <!-- Google Protocol Buffers v2.6.0 -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+
         <!-- JUnit Testing -->
         <dependency>
             <groupId>junit</groupId>
@@ -31,4 +37,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Maven Compiler, set Java version to 1.7 (due to known issues with 1.8) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
