@@ -15,4 +15,9 @@ public class ApiError {
 	public Map<String, Object> testException() throws StandardApiException {
 		throw new StandardApiException("This is SPARTA!");
 	}
+	
+	@RequestMapping(value = {"/api/stderror", "/api/stdexception"}, method=RequestMethod.GET, produces = "application/json")
+	public Map<String, Object> testStdException() throws Exception {
+		throw new Exception("La La Land!!");
+	}
 }
