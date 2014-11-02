@@ -1,6 +1,7 @@
 package dns;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -29,18 +30,32 @@ public class DNSServerHandler extends SimpleChannelInboundHandler<DNSRequest> {
     }
     
     private void handleGET(ChannelHandlerContext ctx, DNSRequest request){
-    	MasterNode m = MASTERNODES.get(request.getClusterName());
-    	if (m == null) {
-    		DNSResponse.Builder rb = DNSResponse.newBuilder();
-    		rb.setStatus(DNSResponse.Status.ERROR);
-    		rb.setErrorMessage("Cluster not found");
-    		ctx.write(rb.build());
-    	}
-    	else {
+    	
+    	String clusterName = request.getClusterName();
+    	
+    	if (clusterName == null){ // asking for all clusters
     		DNSResponse.Builder rb = DNSResponse.newBuilder();
             rb.setStatus(DNSResponse.Status.OK);
-            rb.addMasterNode(m);
+            Set<String> clusterNames = MASTERNODES.keySet();
+            for (String name : clusterNames){
+            	rb.addMasterNode(MASTERNODES.get(name));
+            }
             ctx.write(rb.build());
+    	} 
+    	else { // asking for specific cluster
+    		MasterNode m = MASTERNODES.get(clusterName);
+	    	if (m != null) { // found
+	    		DNSResponse.Builder rb = DNSResponse.newBuilder();
+	            rb.setStatus(DNSResponse.Status.OK);
+	            rb.addMasterNode(m);
+	            ctx.write(rb.build());
+	    	}
+	    	else { // not found
+	    		DNSResponse.Builder rb = DNSResponse.newBuilder();
+	    		rb.setStatus(DNSResponse.Status.ERROR);
+	    		rb.setErrorMessage("Cluster not found");
+	    		ctx.write(rb.build());
+	    	}
     	}
     }
     
