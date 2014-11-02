@@ -7,12 +7,9 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
-import java.util.HashMap;
-import dns.DNSProtocol.MasterNode;
-
 public final class DNSServer {
 
-    static final int PORT = Integer.parseInt(System.getProperty("port", "8463"));
+    private static final int PORT = 5353;
 
     public static void main(String[] args) throws Exception {
 

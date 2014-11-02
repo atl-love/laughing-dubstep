@@ -10,15 +10,10 @@ import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 
 public class DNSServerInitializer extends ChannelInitializer<SocketChannel> {
 
-    public DNSServerInitializer() {
-     
-    }
-
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline p = ch.pipeline();
        
-
         p.addLast(new ProtobufVarint32FrameDecoder());
         p.addLast(new ProtobufDecoder(DNSProtocol.DNSRequest.getDefaultInstance()));
 
