@@ -21,3 +21,10 @@ tmp/
 # VIM Backup file
 ####################
 *~
+
+
+
+# MAC Files
+##################
+.DS_Store
+._*
