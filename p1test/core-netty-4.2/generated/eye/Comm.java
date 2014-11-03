@@ -3,6 +3,7 @@
 
 package eye;
 
+@SuppressWarnings("all") 
 public final class Comm {
   private Comm() {}
   public static void registerAllExtensions(
