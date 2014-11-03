@@ -15,11 +15,9 @@
  */
 package poke.server.storage.noop;
 
-import java.util.HashMap;
 import java.util.List;
 
 import poke.server.storage.VotingStorage;
-import poke.server.voting.VoteState;
 
 /**
  * Voting storage - likely in-memory though consideration for

@@ -9,7 +9,6 @@ import io.netty.handler.codec.compression.ZlibCodecFactory;
 import io.netty.handler.codec.compression.ZlibWrapper;
 import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
-import poke.server.ServerHandler;
 
 public class MonitorInitializer extends ChannelInitializer<SocketChannel> {
 	boolean compress = false;

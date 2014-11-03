@@ -43,6 +43,8 @@ public class ServerConfTest {
 		Assert.equals(5570, conf.getPort());
 		Assert.equals(0, conf.getNodeId());
 		Assert.equals(2, conf.getAdjacent().getAdjacentNodes().size());
+		
+		br.close();
 	}
 
 	@Test
