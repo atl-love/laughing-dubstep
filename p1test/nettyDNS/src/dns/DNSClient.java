@@ -5,6 +5,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import dns.DNSProtocol.DNSResponse;
 
 public final class DNSClient {
 
@@ -27,16 +28,64 @@ public final class DNSClient {
             DNSClientHandler handler = ch.pipeline().get(DNSClientHandler.class);
 
             // Request and get the response.
-            String response = handler.getServerInfo();
+            handler.putServerInfo("test", "10.0.0.1", 9000);
+       
 
             // Close the connection.
             ch.close();
-
-            // Print the response at last but not least.
             
-                System.out.format(response);
+            // Make a new connection.
+            ch = b.connect(HOST, PORT).sync().channel();
+
+            // Get the handler instance to initiate the request.
+            handler = ch.pipeline().get(DNSClientHandler.class);
+
+            // Request and get the response.
+            handler.putServerInfo("test", "10.0.0.2", 9000);
+       
+
+            // Close the connection.
+            ch.close();
+            
+            // Make a new connection.
+            ch = b.connect(HOST, PORT).sync().channel();
+
+            // Get the handler instance to initiate the request.
+            handler = ch.pipeline().get(DNSClientHandler.class);
+
+            // Request and get the response.
+            handler.putServerInfo("test2", "10.0.0.1", 9000);
+       
+
+            // Close the connection.
+            ch.close();
+            
+            // Make a new connection.
+            ch = b.connect(HOST, PORT).sync().channel();
+
+            // Get the handler instance to initiate the request.
+            handler = ch.pipeline().get(DNSClientHandler.class);
+
+            // Request and get the response.
+            handler.getServers();
+
+            // Close the connection.
+            ch.close();
+            
+            // Make a new connection.
+            ch = b.connect(HOST, PORT).sync().channel();
+
+            // Get the handler instance to initiate the request.
+            handler = ch.pipeline().get(DNSClientHandler.class);
+
+            // Request and get the response.
+            handler.getServer("test");
+
+            // Close the connection.
+            ch.close();
             
         } finally {
+        	System.out.println("Client shutting down.");
             group.shutdownGracefully();
         }
     }
