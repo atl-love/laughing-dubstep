@@ -17,7 +17,6 @@ package poke.server.management;
 
 import io.netty.channel.Channel;
 
-import java.net.SocketAddress;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.slf4j.Logger;

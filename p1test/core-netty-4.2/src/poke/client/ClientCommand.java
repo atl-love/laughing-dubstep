@@ -21,12 +21,9 @@ import org.slf4j.LoggerFactory;
 import poke.client.comm.CommConnection;
 import poke.client.comm.CommListener;
 import eye.Comm.Header;
-import eye.Comm.LeaderElection;
-import eye.Comm.Management;
 import eye.Comm.Payload;
 import eye.Comm.Ping;
 import eye.Comm.Request;
-import eye.Comm.LeaderElection.ElectAction;
 
 /**
  * The command class is the concrete implementation of the functionality of our
