@@ -1,4 +1,3 @@
 FullReverseProxy is the main server file.
-DNSServer is an old project.
 MasterNodeKnowerClient is the main test client.
-
+DNSServer is the old server file.
