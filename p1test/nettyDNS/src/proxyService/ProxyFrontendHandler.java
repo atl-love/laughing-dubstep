@@ -15,6 +15,7 @@
  */
 package proxyService;
 
+import node.Node;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -23,7 +24,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
-import node.Node;
 
 public class ProxyFrontendHandler extends ChannelInboundHandlerAdapter {
 	// Changed the ChannelHandlerAdapter to ChannelInboundHandlerAdapter

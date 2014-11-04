@@ -15,11 +15,11 @@
  */
 package proxyService;
 
+import node.Node;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import node.Node;
 
 public class ProxyInitializer extends ChannelInitializer<SocketChannel> {
 
