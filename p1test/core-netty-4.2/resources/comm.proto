@@ -48,6 +48,35 @@ message NameSpace {
    optional NameValueSet properties = 8;
 }
 
+message PhotoHeader {
+   
+    optional RequestType requestType = 1 [default = read];
+    optional ResponseFlag responseFlag = 2 [default = success];
+    optional int64 lastModified = 3;                     // Unix timestamp
+    optional int32 contentLength = 4;
+    optional int32 entryNode=5;			    
+   
+    enum RequestType {
+        read = 0;
+        write = 1;
+        delete = 2;
+    }
+    enum ResponseFlag {
+        success = 0;
+        failure = 1;
+    }
+   
+}
+
+message PhotoPayload {
+   
+    optional string uuid = 1;                            // Required for types 0 & 2
+    optional string name = 2;                            // Required for type 1
+    optional bytes data = 3;                             // Required for type 1
+   
+}
+
+
 // data - a job description
 message JobDesc {
    required string name_space = 1;
@@ -165,7 +194,7 @@ message Header {
     // while we can use extensions, it is not a clean inheritance 
     // implementation and since requests and responses differ only 
     // by these two fields, a new message is not created.
-
+	    optional PhotoHeader photoHeader = 10;
     optional PokeStatus reply_code = 5;
     optional string reply_msg = 6;
     
@@ -196,7 +225,7 @@ message Payload {
     // requests only
     optional NameSpaceOperation space_op = 2;
     optional JobOperation job_op = 3;
-
+    optional PhotoPayload photoPayload = 4;
     // replies only
     optional JobStatus job_status = 13;
     optional NameSpaceStatus space_status = 12;
