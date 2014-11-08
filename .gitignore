@@ -1,7 +1,7 @@
 # Binary Files
 ####################
-*.class
-*.jar
+# *.class
+# *.jar
 
 # Eclipse Files
 ####################
@@ -11,7 +11,7 @@
 # .settings/
 # bin/
 # target/
-tmp/
+# tmp/
 
 
 # VIM Backup file
