@@ -5,16 +5,12 @@
 
 # Eclipse Files
 ####################
-.classpath
-.project
-.metadata
-.gradle
-
-# Eclipse Project
-####################
-.settings/
-bin/
-target/
+# .classpath
+# .project
+# .metadata
+# .settings/
+# bin/
+# target/
 tmp/
 
 
