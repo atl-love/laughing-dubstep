@@ -106,7 +106,8 @@ public class InboundMgmtWorker extends Thread {
 				} else if (mgmt.hasElection()) {
 					ElectionManager.getInstance().processRequest(mgmt);
 				} else if (mgmt.hasGraph()) {
-					NetworkManager.getInstance().processRequest(mgmt, msg.channel);
+					NetworkManager.getInstance().processRequest(mgmt,
+							msg.channel);
 				} else if (mgmt.hasJobBid()) {
 					JobManager.getInstance().processRequest(mgmt);
 				} else if (mgmt.hasJobPropose()) {
@@ -117,7 +118,8 @@ public class InboundMgmtWorker extends Thread {
 			} catch (InterruptedException ie) {
 				break;
 			} catch (Exception e) {
-				logger.error("Unexpected processing failure, halting worker.", e);
+				logger.error("Unexpected processing failure, halting worker.",
+						e);
 				break;
 			}
 		}

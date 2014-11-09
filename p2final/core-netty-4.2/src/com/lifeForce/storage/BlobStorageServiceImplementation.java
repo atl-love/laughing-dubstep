@@ -6,18 +6,21 @@ import java.util.List;
 
 public class BlobStorageServiceImplementation implements BlobStorageService {
 
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	static final String DB_URL = "jdbc:mysql://localhost/cmpe275";
-	static final String USER = "root";
-	static final String PASS = "";
-
 	Connection conn = null;
 	Statement stmt = null;
 
-	public BlobStorageServiceImplementation() throws ClassNotFoundException,
-			SQLException {
-		Class.forName("com.mysql.jdbc.Driver");
-		conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	public BlobStorageServiceImplementation()  {
+		try {
+			
+			Class.forName(DbConfigurations.getJdbcDriver());
+			conn = DriverManager.getConnection(com.lifeForce.storage.DbConfigurations.getLocalDbUrl(), com.lifeForce.storage.DbConfigurations.getLocalDbUser(), com.lifeForce.storage.DbConfigurations.getLocalDbPass());
+			
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	public BlobStorageProfile createBlobStorage(BlobStorage blob)
@@ -51,11 +54,11 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 		return findByUuid(blob.getUuid());
 	}
 
-	public void deleteBlobStorage(Long blobStorageId) throws Exception {
+	public Boolean deleteBlobStorage(Long blobStorageId) throws Exception {
 
-		PreparedStatement ps = null;
-		BlobStorage blob = null;
-
+		PreparedStatement ps = null; 
+		Boolean success = false;
+		
 		try {
 
 			String sql = "DELETE FROM blobStorage where blobStorage.blobStorageId = ?;";
@@ -63,11 +66,16 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 			ps = conn.prepareStatement(sql);
 			ps.setLong(1, blobStorageId);
 
-			ResultSet rs = ps.executeQuery();
+			ps.executeQuery();
+			success = true;
+			return success;
 			
-		} finally {
-			ps.close();
-			blob = null;
+		}catch(Exception ex){
+			success=false;
+			return success;
+		}
+		finally {
+			ps.close(); 
 		}
 	}
 
@@ -142,6 +150,34 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 			blob = null;
 			blobs=null;
 		}
+	}
+
+	@Override
+	public Boolean deleteBlobStorageByUuid(String uuid) throws Exception {
+		PreparedStatement ps = null; 
+		Boolean success = false;
+
+		try {
+
+			String sql = "DELETE FROM blobStorage where blobStorage.uuid = ?;";
+
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, uuid);
+
+			 ps.executeQuery();
+			
+			success = true;
+			return success;
+			
+		}catch(Exception ex){
+			success = false;
+			return success;
+		}
+		finally {
+			ps.close(); 
+			
+		}
+		
 	}
 
 }

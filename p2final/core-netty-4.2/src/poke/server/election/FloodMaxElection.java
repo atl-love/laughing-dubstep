@@ -338,17 +338,23 @@ public class FloodMaxElection implements Election {
 			}
 		}
 
+		Management.Builder mb ;
+		try{
 		// add myself (may allow duplicate entries, if cycling is allowed)
 		RoutingPath.Builder rpb = RoutingPath.newBuilder();
 		rpb.setNodeId(this.nodeId);
 		rpb.setTime(System.currentTimeMillis());
-		mhb.addPath(rpb);
+//		mhb.addPath(rpb);
 
-		Management.Builder mb = Management.newBuilder();
+		mb = Management.newBuilder();
 		mb.setHeader(mhb.build());
 		mb.setElection(elb.build());
 
 		return mb.build();
+		}
+		finally{
+			mb=null;
+		}
 	}
 
 	@Override

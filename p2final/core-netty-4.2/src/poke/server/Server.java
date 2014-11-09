@@ -34,6 +34,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.lifeForce.storage.DatabaseException;
+import com.lifeForce.storage.DbConfigurations;
+
 import poke.server.conf.JsonUtil;
 import poke.server.conf.NodeDesc;
 import poke.server.conf.ServerConf;
@@ -45,7 +48,6 @@ import poke.server.managers.HeartbeatData;
 import poke.server.managers.HeartbeatManager;
 import poke.server.managers.JobManager;
 import poke.server.managers.NetworkManager;
-import poke.server.managers.ServerManager;
 import poke.server.resources.ResourceFactory;
 
 /**
@@ -71,8 +73,7 @@ public class Server {
 	protected NetworkManager networkMgr;
 	protected HeartbeatManager heartbeatMgr;
 	protected ElectionManager electionMgr;
-	protected ServerManager serverMgr;
-	
+
 	/**
 	 * static because we need to get a handle to the factory from the shutdown
 	 * resource
@@ -272,9 +273,6 @@ public class Server {
 		// create manager for network changes
 		networkMgr = NetworkManager.initManager(conf);
 		
-		//TODO : check whether you need server manager
-		serverMgr = ServerManager.initManager(conf);
-
 		// create manager for leader election. The number of votes (default 1)
 		// is used to break ties where there are an even number of nodes.
 		electionMgr = ElectionManager.initManager(conf);
@@ -296,6 +294,14 @@ public class Server {
 		HeartbeatPusher conn = HeartbeatPusher.getInstance();
 		conn.start();
 
+		//initalizing db 
+		try {
+			DbConfigurations.Initialize();
+		} catch (DatabaseException e) { 
+			e.printStackTrace();
+			logger.info("Error in initializing Db ");
+		}
+		
 		logger.info("Server " + conf.getNodeId() + ", managers initialized");
 	}
 

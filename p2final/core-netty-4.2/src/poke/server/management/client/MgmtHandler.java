@@ -37,7 +37,8 @@ import com.google.protobuf.GeneratedMessage;
  * @author gash
  * 
  */
-public class MgmtHandler extends SimpleChannelInboundHandler<eye.Comm.Management> {
+public class MgmtHandler extends
+		SimpleChannelInboundHandler<eye.Comm.Management> {
 	protected static Logger logger = LoggerFactory.getLogger("connect");
 	protected ConcurrentMap<String, MgmtListener> listeners = new ConcurrentHashMap<String, MgmtListener>();
 	private volatile Channel channel;
@@ -103,13 +104,16 @@ public class MgmtHandler extends SimpleChannelInboundHandler<eye.Comm.Management
 	 *            The message
 	 */
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, eye.Comm.Management msg) throws Exception {
-		for (String id : listeners.keySet()) {
-			MgmtListener cl = listeners.get(id);
+	protected void channelRead0(ChannelHandlerContext ctx,
+			eye.Comm.Management msg) throws Exception {
+	
+			for (String id : listeners.keySet()) {
+				MgmtListener cl = listeners.get(id);
 
-			// TODO this may need to be delegated to a thread pool to allow
-			// async processing of replies
-			cl.onMessage(msg);
-		}
+				// TODO this may need to be delegated to a thread pool to allow
+				// async processing of replies
+				cl.onMessage(msg);
+			}
+		
 	}
 }

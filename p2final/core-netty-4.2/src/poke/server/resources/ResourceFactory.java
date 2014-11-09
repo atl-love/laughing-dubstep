@@ -15,30 +15,25 @@
  */
 package poke.server.resources;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
-
 import java.beans.Beans;
-import java.net.InetSocketAddress;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import poke.client.util.RoundRobin;
-import poke.server.ServerInitializer;
+import com.lifeForce.storage.MapperStorage;
+import com.lifeForce.storage.ReplicatedDbServiceImplementation;
+
+import poke.resources.ForwardResource;
+import poke.resources.JobResource;
+import poke.resources.MapperResource;
 import poke.server.conf.NodeDesc;
 import poke.server.conf.ServerConf;
 import poke.server.conf.ServerConf.ResourceConf;
-import poke.server.management.ManagementQueue;
 import poke.server.managers.ElectionManager;
-import poke.server.managers.ServerManager;
+import poke.server.managers.HeartbeatManager;
 import eye.Comm.Header;
+import eye.Comm.Request;
 import eye.Comm.PhotoHeader.RequestType;
 
 /**
@@ -96,38 +91,164 @@ public class ResourceFactory {
 		if (rc == null)
 			return null;
 
-		
 		try {
 
-			
 			if (ElectionManager.getInstance().whoIsTheLeader() != null
 					&& cfg.getNodeId() == ElectionManager.getInstance()
-							.whoIsTheLeader()
-					&& header.getPhotoHeader().getRequestType() == RequestType.write) {
+							.whoIsTheLeader()) {
 
-				int node = RoundRobin.getNodeIdToServeRequest();
+				switch (header.getPhotoHeader().getRequestType()) {
 
-				if (ServerManager.getInstance().getNodeId() == node) {
+				case write:
+					int node = RoundRobin.getForwardingNode();
 
-					Resource rsc = (Resource) Beans.instantiate(this.getClass()
-							.getClassLoader(), rc.getClazz());
+					if (cfg.getNodeId() == node) {
+
+						JobResource rsc = (JobResource) Beans.instantiate(this
+								.getClass().getClassLoader(), rc.getClazz());
+						rsc.setCfg(cfg);
+						return rsc;
+					}
+
+					ForwardResource rsc = (ForwardResource) Beans.instantiate(
+							this.getClass().getClassLoader(),
+							cfg.getForwardingImplementation());
+					rsc.setCfg(cfg);
+
+					return rsc;
+
+				case read:
+
+					MapperResource rscMapper = (MapperResource) Beans
+							.instantiate(this.getClass().getClassLoader(),
+									cfg.getForwardingImplementation());
+					rscMapper.setCfg(cfg);
+
+					return rscMapper;
+
+				default:
+					return null;
+
+				}
+			} else {
+
+				// check if originator is my leader only than process the request 
+				if (ElectionManager.getInstance().whoIsTheLeader() ==  header.getOriginator()) {
+					
+					// handle it locally
+					JobResource rsc = (JobResource) Beans.instantiate(this
+							.getClass().getClassLoader(), rc.getClazz());
+					rsc.setCfg(cfg);
 					return rsc;
 				}
-
-				Resource rsc = (Resource) Beans.instantiate(this.getClass()
-						.getClassLoader(), cfg.getForwardingImplementation());
-				return rsc;
-			} else {
-				// handle it locally
-				Resource rsc = (Resource) Beans.instantiate(this.getClass()
-						.getClassLoader(), rc.getClazz());
-				return rsc;
+				
+				return null;
 			}
 
 		} catch (Exception e) {
 			logger.error("unable to create resource " + rc.getClazz());
 			return null;
 		}
+	}
+
+	// private static Integer value = -1;
+	//
+	// // private static int nextNode;
+	// public int RoundRobin(Header header) {
+	// // implementataion changed to RoundRobin
+	// // takes a value from 0 to max nodes
+	// // check value heartbeat from heartbeat manager - wheather node is
+	// // alive
+	// // increment the value -- initial 0
+	// value++;
+	//
+	// // get aliveNodes
+	// int aliveNodes = HeartbeatManager.getInstance().getAliveNodes();
+	//
+	// while (true) {
+	//
+	// // check whether node is alive or value is my NodeId
+	// if (cfg.getNodeId() == value
+	// || HeartbeatManager.getInstance().isNodeAlive(value)) {
+	//
+	// // if leader node is selected to save data, set toNode to leaders NodeId
+	// (used in saving mapping table) bcoz cfg / nodeId is not available in
+	// JobResource / PerChannel queue
+	// if (cfg.getNodeId() == value) {
+	// eye.Comm.Header.Builder headerBuilder = Header
+	// .newBuilder(header);
+	// headerBuilder.setToNode(cfg.getNodeId());
+	// header = headerBuilder.build();
+	//
+	// } else {
+	// // iterate in adjacent node to find IP and Port of the node selected,
+	// Used to create connection and forward the request. Since cfg is not
+	// accessible in PerChannel queue
+	// for (NodeDesc node : cfg.getAdjacent().getAdjacentNodes()
+	// .values()) {
+	// if (value == node.getNodeId()) {
+	//
+	// eye.Comm.Header.Builder headerBuilder = Header
+	// .newBuilder(header);
+	// headerBuilder.setOriginator(cfg.getNodeId());
+	// headerBuilder.setIp(node.getHost());
+	// headerBuilder.setPort(node.getPort());
+	// headerBuilder.setToNode(node.getNodeId());
+	// header = headerBuilder.build();
+	//
+	// }
+	// }
+	//
+	// }
+	//
+	// System.out.println("roundrobin -- set node" + value);
+	// return value;
+	// } else {
+	// // if node is not alive -- check node
+	// value = value == aliveNodes ? 0 : value++;
+	// }
+	// }
+	// }
+
+	public static class RoundRobin {
+		private static Integer value = -1;
+		private static int nextNode;
+
+		public static int getForwardingNode() {
+			// implementataion changed to RoundRobin
+			// takes a value from 0 to max nodes
+			// check value heartbeat from heartbeat manager - wheather node is
+			// alive
+			// increment the value -- initial 0
+			value++;
+
+			// get aliveNodes
+			int aliveNodes = HeartbeatManager.getInstance().getAliveNodes();
+
+			while (true) {
+
+				// check whether node is alive or value is my NodeId
+				if (cfg.getNodeId() == value
+						|| HeartbeatManager.getInstance().isNodeAlive(value)) {
+
+					RoundRobin.setNextNode(value);
+					System.out.println("roundrobin -- set node" + value);
+					return value;
+				} else {
+					// if node is not alive -- check node
+					value = value == aliveNodes ? 0 : value++;
+				}
+			}
+		}
+
+		public static int getNextNode() {
+			return nextNode;
+		}
+
+		public static void setNextNode(int nextNode) {
+			RoundRobin.nextNode = nextNode;
+		}
+
 	}
 
 }

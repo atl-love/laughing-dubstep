@@ -12,7 +12,7 @@ public final class Comm {
    * Protobuf enum {@code PokeStatus}
    *
    * <pre>
-   * general status. The NO[word] values are 'failure for cause' and 
+   * general status. The NO[word] values are 'failure for cause' and
    * FAILURE is w/o cause.
    * </pre>
    */
@@ -2872,6 +2872,20 @@ public final class Comm {
      * <code>optional int32 contentLength = 4;</code>
      */
     int getContentLength();
+
+    /**
+     * <code>optional string entryNode = 5;</code>
+     */
+    boolean hasEntryNode();
+    /**
+     * <code>optional string entryNode = 5;</code>
+     */
+    java.lang.String getEntryNode();
+    /**
+     * <code>optional string entryNode = 5;</code>
+     */
+    com.google.protobuf.ByteString
+        getEntryNodeBytes();
   }
   /**
    * Protobuf type {@code PhotoHeader}
@@ -2955,6 +2969,12 @@ public final class Comm {
             case 32: {
               bitField0_ |= 0x00000008;
               contentLength_ = input.readInt32();
+              break;
+            }
+            case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000010;
+              entryNode_ = bs;
               break;
             }
           }
@@ -3238,11 +3258,54 @@ public final class Comm {
       return contentLength_;
     }
 
+    public static final int ENTRYNODE_FIELD_NUMBER = 5;
+    private java.lang.Object entryNode_;
+    /**
+     * <code>optional string entryNode = 5;</code>
+     */
+    public boolean hasEntryNode() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional string entryNode = 5;</code>
+     */
+    public java.lang.String getEntryNode() {
+      java.lang.Object ref = entryNode_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          entryNode_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string entryNode = 5;</code>
+     */
+    public com.google.protobuf.ByteString
+        getEntryNodeBytes() {
+      java.lang.Object ref = entryNode_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        entryNode_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private void initFields() {
       requestType_ = eye.Comm.PhotoHeader.RequestType.read;
       responseFlag_ = eye.Comm.PhotoHeader.ResponseFlag.success;
       lastModified_ = 0L;
       contentLength_ = 0;
+      entryNode_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -3269,6 +3332,9 @@ public final class Comm {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt32(4, contentLength_);
       }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeBytes(5, getEntryNodeBytes());
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -3293,6 +3359,10 @@ public final class Comm {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, contentLength_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(5, getEntryNodeBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -3419,6 +3489,8 @@ public final class Comm {
         bitField0_ = (bitField0_ & ~0x00000004);
         contentLength_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
+        entryNode_ = "";
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -3463,6 +3535,10 @@ public final class Comm {
           to_bitField0_ |= 0x00000008;
         }
         result.contentLength_ = contentLength_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.entryNode_ = entryNode_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -3490,6 +3566,11 @@ public final class Comm {
         }
         if (other.hasContentLength()) {
           setContentLength(other.getContentLength());
+        }
+        if (other.hasEntryNode()) {
+          bitField0_ |= 0x00000010;
+          entryNode_ = other.entryNode_;
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -3664,6 +3745,82 @@ public final class Comm {
       public Builder clearContentLength() {
         bitField0_ = (bitField0_ & ~0x00000008);
         contentLength_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object entryNode_ = "";
+      /**
+       * <code>optional string entryNode = 5;</code>
+       */
+      public boolean hasEntryNode() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional string entryNode = 5;</code>
+       */
+      public java.lang.String getEntryNode() {
+        java.lang.Object ref = entryNode_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            entryNode_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string entryNode = 5;</code>
+       */
+      public com.google.protobuf.ByteString
+          getEntryNodeBytes() {
+        java.lang.Object ref = entryNode_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          entryNode_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string entryNode = 5;</code>
+       */
+      public Builder setEntryNode(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        entryNode_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string entryNode = 5;</code>
+       */
+      public Builder clearEntryNode() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        entryNode_ = getDefaultInstance().getEntryNode();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string entryNode = 5;</code>
+       */
+      public Builder setEntryNodeBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        entryNode_ = value;
         onChanged();
         return this;
       }
@@ -9257,7 +9414,7 @@ public final class Comm {
      * <code>required int32 weight = 4;</code>
      *
      * <pre>
-     * weight is a scalar value representing the expected load for 
+     * weight is a scalar value representing the expected load for
      * performing this job (e.g., 1 = light, 10 = intensive)
      * </pre>
      */
@@ -9266,7 +9423,7 @@ public final class Comm {
      * <code>required int32 weight = 4;</code>
      *
      * <pre>
-     * weight is a scalar value representing the expected load for 
+     * weight is a scalar value representing the expected load for
      * performing this job (e.g., 1 = light, 10 = intensive)
      * </pre>
      */
@@ -9533,7 +9690,7 @@ public final class Comm {
      * <code>required int32 weight = 4;</code>
      *
      * <pre>
-     * weight is a scalar value representing the expected load for 
+     * weight is a scalar value representing the expected load for
      * performing this job (e.g., 1 = light, 10 = intensive)
      * </pre>
      */
@@ -9544,7 +9701,7 @@ public final class Comm {
      * <code>required int32 weight = 4;</code>
      *
      * <pre>
-     * weight is a scalar value representing the expected load for 
+     * weight is a scalar value representing the expected load for
      * performing this job (e.g., 1 = light, 10 = intensive)
      * </pre>
      */
@@ -10132,7 +10289,7 @@ public final class Comm {
        * <code>required int32 weight = 4;</code>
        *
        * <pre>
-       * weight is a scalar value representing the expected load for 
+       * weight is a scalar value representing the expected load for
        * performing this job (e.g., 1 = light, 10 = intensive)
        * </pre>
        */
@@ -10143,7 +10300,7 @@ public final class Comm {
        * <code>required int32 weight = 4;</code>
        *
        * <pre>
-       * weight is a scalar value representing the expected load for 
+       * weight is a scalar value representing the expected load for
        * performing this job (e.g., 1 = light, 10 = intensive)
        * </pre>
        */
@@ -10154,7 +10311,7 @@ public final class Comm {
        * <code>required int32 weight = 4;</code>
        *
        * <pre>
-       * weight is a scalar value representing the expected load for 
+       * weight is a scalar value representing the expected load for
        * performing this job (e.g., 1 = light, 10 = intensive)
        * </pre>
        */
@@ -10168,7 +10325,7 @@ public final class Comm {
        * <code>required int32 weight = 4;</code>
        *
        * <pre>
-       * weight is a scalar value representing the expected load for 
+       * weight is a scalar value representing the expected load for
        * performing this job (e.g., 1 = light, 10 = intensive)
        * </pre>
        */
@@ -10388,7 +10545,7 @@ public final class Comm {
      *
      * <pre>
      * a weighted bid -&gt; this helps to remove ties in systems with a
-     * even number of voters 
+     * even number of voters
      * </pre>
      */
     boolean hasBid();
@@ -10397,7 +10554,7 @@ public final class Comm {
      *
      * <pre>
      * a weighted bid -&gt; this helps to remove ties in systems with a
-     * even number of voters 
+     * even number of voters
      * </pre>
      */
     int getBid();
@@ -10626,7 +10783,7 @@ public final class Comm {
      *
      * <pre>
      * a weighted bid -&gt; this helps to remove ties in systems with a
-     * even number of voters 
+     * even number of voters
      * </pre>
      */
     public boolean hasBid() {
@@ -10637,7 +10794,7 @@ public final class Comm {
      *
      * <pre>
      * a weighted bid -&gt; this helps to remove ties in systems with a
-     * even number of voters 
+     * even number of voters
      * </pre>
      */
     public int getBid() {
@@ -11154,7 +11311,7 @@ public final class Comm {
        *
        * <pre>
        * a weighted bid -&gt; this helps to remove ties in systems with a
-       * even number of voters 
+       * even number of voters
        * </pre>
        */
       public boolean hasBid() {
@@ -11165,7 +11322,7 @@ public final class Comm {
        *
        * <pre>
        * a weighted bid -&gt; this helps to remove ties in systems with a
-       * even number of voters 
+       * even number of voters
        * </pre>
        */
       public int getBid() {
@@ -11176,7 +11333,7 @@ public final class Comm {
        *
        * <pre>
        * a weighted bid -&gt; this helps to remove ties in systems with a
-       * even number of voters 
+       * even number of voters
        * </pre>
        */
       public Builder setBid(int value) {
@@ -11190,7 +11347,7 @@ public final class Comm {
        *
        * <pre>
        * a weighted bid -&gt; this helps to remove ties in systems with a
-       * even number of voters 
+       * even number of voters
        * </pre>
        */
       public Builder clearBid() {
@@ -12914,11 +13071,34 @@ public final class Comm {
     long getTime();
 
     /**
+     * <code>optional string ip = 11;</code>
+     */
+    boolean hasIp();
+    /**
+     * <code>optional string ip = 11;</code>
+     */
+    java.lang.String getIp();
+    /**
+     * <code>optional string ip = 11;</code>
+     */
+    com.google.protobuf.ByteString
+        getIpBytes();
+
+    /**
+     * <code>optional int32 port = 12;</code>
+     */
+    boolean hasPort();
+    /**
+     * <code>optional int32 port = 12;</code>
+     */
+    int getPort();
+
+    /**
      * <code>optional .PhotoHeader photoHeader = 10;</code>
      *
      * <pre>
-     * while we can use extensions, it is not a clean inheritance 
-     * implementation and since requests and responses differ only 
+     * while we can use extensions, it is not a clean inheritance
+     * implementation and since requests and responses differ only
      * by these two fields, a new message is not created.
      * </pre>
      */
@@ -12927,8 +13107,8 @@ public final class Comm {
      * <code>optional .PhotoHeader photoHeader = 10;</code>
      *
      * <pre>
-     * while we can use extensions, it is not a clean inheritance 
-     * implementation and since requests and responses differ only 
+     * while we can use extensions, it is not a clean inheritance
+     * implementation and since requests and responses differ only
      * by these two fields, a new message is not created.
      * </pre>
      */
@@ -12937,8 +13117,8 @@ public final class Comm {
      * <code>optional .PhotoHeader photoHeader = 10;</code>
      *
      * <pre>
-     * while we can use extensions, it is not a clean inheritance 
-     * implementation and since requests and responses differ only 
+     * while we can use extensions, it is not a clean inheritance
+     * implementation and since requests and responses differ only
      * by these two fields, a new message is not created.
      * </pre>
      */
@@ -13157,41 +13337,41 @@ public final class Comm {
               if (value == null) {
                 unknownFields.mergeVarintField(5, rawValue);
               } else {
-                bitField0_ |= 0x00000020;
+                bitField0_ |= 0x00000080;
                 replyCode_ = value;
               }
               break;
             }
             case 50: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000040;
+              bitField0_ |= 0x00000100;
               replyMsg_ = bs;
               break;
             }
             case 58: {
-              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+              if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
                 path_ = new java.util.ArrayList<eye.Comm.RoutingPath>();
-                mutable_bitField0_ |= 0x00000080;
+                mutable_bitField0_ |= 0x00000200;
               }
               path_.add(input.readMessage(eye.Comm.RoutingPath.PARSER, extensionRegistry));
               break;
             }
             case 64: {
-              bitField0_ |= 0x00000080;
+              bitField0_ |= 0x00000200;
               toNode_ = input.readInt32();
               break;
             }
             case 74: {
-              if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+              if (!((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
                 options_ = new java.util.ArrayList<eye.Comm.NameValueSet>();
-                mutable_bitField0_ |= 0x00000200;
+                mutable_bitField0_ |= 0x00000800;
               }
               options_.add(input.readMessage(eye.Comm.NameValueSet.PARSER, extensionRegistry));
               break;
             }
             case 82: {
               eye.Comm.PhotoHeader.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000010) == 0x00000010)) {
+              if (((bitField0_ & 0x00000040) == 0x00000040)) {
                 subBuilder = photoHeader_.toBuilder();
               }
               photoHeader_ = input.readMessage(eye.Comm.PhotoHeader.PARSER, extensionRegistry);
@@ -13199,7 +13379,18 @@ public final class Comm {
                 subBuilder.mergeFrom(photoHeader_);
                 photoHeader_ = subBuilder.buildPartial();
               }
+              bitField0_ |= 0x00000040;
+              break;
+            }
+            case 90: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000010;
+              ip_ = bs;
+              break;
+            }
+            case 96: {
+              bitField0_ |= 0x00000020;
+              port_ = input.readInt32();
               break;
             }
           }
@@ -13210,10 +13401,10 @@ public final class Comm {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
           path_ = java.util.Collections.unmodifiableList(path_);
         }
-        if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+        if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
           options_ = java.util.Collections.unmodifiableList(options_);
         }
         this.unknownFields = unknownFields.build();
@@ -13444,26 +13635,83 @@ public final class Comm {
       return time_;
     }
 
+    public static final int IP_FIELD_NUMBER = 11;
+    private java.lang.Object ip_;
+    /**
+     * <code>optional string ip = 11;</code>
+     */
+    public boolean hasIp() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional string ip = 11;</code>
+     */
+    public java.lang.String getIp() {
+      java.lang.Object ref = ip_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          ip_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string ip = 11;</code>
+     */
+    public com.google.protobuf.ByteString
+        getIpBytes() {
+      java.lang.Object ref = ip_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        ip_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int PORT_FIELD_NUMBER = 12;
+    private int port_;
+    /**
+     * <code>optional int32 port = 12;</code>
+     */
+    public boolean hasPort() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional int32 port = 12;</code>
+     */
+    public int getPort() {
+      return port_;
+    }
+
     public static final int PHOTOHEADER_FIELD_NUMBER = 10;
     private eye.Comm.PhotoHeader photoHeader_;
     /**
      * <code>optional .PhotoHeader photoHeader = 10;</code>
      *
      * <pre>
-     * while we can use extensions, it is not a clean inheritance 
-     * implementation and since requests and responses differ only 
+     * while we can use extensions, it is not a clean inheritance
+     * implementation and since requests and responses differ only
      * by these two fields, a new message is not created.
      * </pre>
      */
     public boolean hasPhotoHeader() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
      * <code>optional .PhotoHeader photoHeader = 10;</code>
      *
      * <pre>
-     * while we can use extensions, it is not a clean inheritance 
-     * implementation and since requests and responses differ only 
+     * while we can use extensions, it is not a clean inheritance
+     * implementation and since requests and responses differ only
      * by these two fields, a new message is not created.
      * </pre>
      */
@@ -13474,8 +13722,8 @@ public final class Comm {
      * <code>optional .PhotoHeader photoHeader = 10;</code>
      *
      * <pre>
-     * while we can use extensions, it is not a clean inheritance 
-     * implementation and since requests and responses differ only 
+     * while we can use extensions, it is not a clean inheritance
+     * implementation and since requests and responses differ only
      * by these two fields, a new message is not created.
      * </pre>
      */
@@ -13489,7 +13737,7 @@ public final class Comm {
      * <code>optional .PokeStatus reply_code = 5;</code>
      */
     public boolean hasReplyCode() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
      * <code>optional .PokeStatus reply_code = 5;</code>
@@ -13504,7 +13752,7 @@ public final class Comm {
      * <code>optional string reply_msg = 6;</code>
      */
     public boolean hasReplyMsg() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
      * <code>optional string reply_msg = 6;</code>
@@ -13605,7 +13853,7 @@ public final class Comm {
      * </pre>
      */
     public boolean hasToNode() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+      return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
      * <code>optional int32 toNode = 8;</code>
@@ -13678,6 +13926,8 @@ public final class Comm {
       originator_ = 0;
       tag_ = "";
       time_ = 0L;
+      ip_ = "";
+      port_ = 0;
       photoHeader_ = eye.Comm.PhotoHeader.getDefaultInstance();
       replyCode_ = eye.Comm.PokeStatus.UKNOWN;
       replyMsg_ = "";
@@ -13730,23 +13980,29 @@ public final class Comm {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt64(4, time_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
         output.writeEnum(5, replyCode_.getNumber());
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
         output.writeBytes(6, getReplyMsgBytes());
       }
       for (int i = 0; i < path_.size(); i++) {
         output.writeMessage(7, path_.get(i));
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
         output.writeInt32(8, toNode_);
       }
       for (int i = 0; i < options_.size(); i++) {
         output.writeMessage(9, options_.get(i));
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeMessage(10, photoHeader_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeBytes(11, getIpBytes());
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeInt32(12, port_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -13773,11 +14029,11 @@ public final class Comm {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(4, time_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(5, replyCode_.getNumber());
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(6, getReplyMsgBytes());
       }
@@ -13785,7 +14041,7 @@ public final class Comm {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(7, path_.get(i));
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(8, toNode_);
       }
@@ -13793,9 +14049,17 @@ public final class Comm {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(9, options_.get(i));
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(10, photoHeader_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(11, getIpBytes());
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(12, port_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -13925,27 +14189,31 @@ public final class Comm {
         bitField0_ = (bitField0_ & ~0x00000004);
         time_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000008);
+        ip_ = "";
+        bitField0_ = (bitField0_ & ~0x00000010);
+        port_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000020);
         if (photoHeaderBuilder_ == null) {
           photoHeader_ = eye.Comm.PhotoHeader.getDefaultInstance();
         } else {
           photoHeaderBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000010);
-        replyCode_ = eye.Comm.PokeStatus.UKNOWN;
-        bitField0_ = (bitField0_ & ~0x00000020);
-        replyMsg_ = "";
         bitField0_ = (bitField0_ & ~0x00000040);
+        replyCode_ = eye.Comm.PokeStatus.UKNOWN;
+        bitField0_ = (bitField0_ & ~0x00000080);
+        replyMsg_ = "";
+        bitField0_ = (bitField0_ & ~0x00000100);
         if (pathBuilder_ == null) {
           path_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000080);
+          bitField0_ = (bitField0_ & ~0x00000200);
         } else {
           pathBuilder_.clear();
         }
         toNode_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000400);
         if (optionsBuilder_ == null) {
           options_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000200);
+          bitField0_ = (bitField0_ & ~0x00000800);
         } else {
           optionsBuilder_.clear();
         }
@@ -13996,36 +14264,44 @@ public final class Comm {
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
+        result.ip_ = ip_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.port_ = port_;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
         if (photoHeaderBuilder_ == null) {
           result.photoHeader_ = photoHeader_;
         } else {
           result.photoHeader_ = photoHeaderBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000020;
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+          to_bitField0_ |= 0x00000080;
         }
         result.replyCode_ = replyCode_;
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
-          to_bitField0_ |= 0x00000040;
+        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+          to_bitField0_ |= 0x00000100;
         }
         result.replyMsg_ = replyMsg_;
         if (pathBuilder_ == null) {
-          if (((bitField0_ & 0x00000080) == 0x00000080)) {
+          if (((bitField0_ & 0x00000200) == 0x00000200)) {
             path_ = java.util.Collections.unmodifiableList(path_);
-            bitField0_ = (bitField0_ & ~0x00000080);
+            bitField0_ = (bitField0_ & ~0x00000200);
           }
           result.path_ = path_;
         } else {
           result.path_ = pathBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
-          to_bitField0_ |= 0x00000080;
+        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+          to_bitField0_ |= 0x00000200;
         }
         result.toNode_ = toNode_;
         if (optionsBuilder_ == null) {
-          if (((bitField0_ & 0x00000200) == 0x00000200)) {
+          if (((bitField0_ & 0x00000800) == 0x00000800)) {
             options_ = java.util.Collections.unmodifiableList(options_);
-            bitField0_ = (bitField0_ & ~0x00000200);
+            bitField0_ = (bitField0_ & ~0x00000800);
           }
           result.options_ = options_;
         } else {
@@ -14061,6 +14337,14 @@ public final class Comm {
         if (other.hasTime()) {
           setTime(other.getTime());
         }
+        if (other.hasIp()) {
+          bitField0_ |= 0x00000010;
+          ip_ = other.ip_;
+          onChanged();
+        }
+        if (other.hasPort()) {
+          setPort(other.getPort());
+        }
         if (other.hasPhotoHeader()) {
           mergePhotoHeader(other.getPhotoHeader());
         }
@@ -14068,7 +14352,7 @@ public final class Comm {
           setReplyCode(other.getReplyCode());
         }
         if (other.hasReplyMsg()) {
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000100;
           replyMsg_ = other.replyMsg_;
           onChanged();
         }
@@ -14076,7 +14360,7 @@ public final class Comm {
           if (!other.path_.isEmpty()) {
             if (path_.isEmpty()) {
               path_ = other.path_;
-              bitField0_ = (bitField0_ & ~0x00000080);
+              bitField0_ = (bitField0_ & ~0x00000200);
             } else {
               ensurePathIsMutable();
               path_.addAll(other.path_);
@@ -14089,7 +14373,7 @@ public final class Comm {
               pathBuilder_.dispose();
               pathBuilder_ = null;
               path_ = other.path_;
-              bitField0_ = (bitField0_ & ~0x00000080);
+              bitField0_ = (bitField0_ & ~0x00000200);
               pathBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getPathFieldBuilder() : null;
@@ -14105,7 +14389,7 @@ public final class Comm {
           if (!other.options_.isEmpty()) {
             if (options_.isEmpty()) {
               options_ = other.options_;
-              bitField0_ = (bitField0_ & ~0x00000200);
+              bitField0_ = (bitField0_ & ~0x00000800);
             } else {
               ensureOptionsIsMutable();
               options_.addAll(other.options_);
@@ -14118,7 +14402,7 @@ public final class Comm {
               optionsBuilder_.dispose();
               optionsBuilder_ = null;
               options_ = other.options_;
-              bitField0_ = (bitField0_ & ~0x00000200);
+              bitField0_ = (bitField0_ & ~0x00000800);
               optionsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getOptionsFieldBuilder() : null;
@@ -14349,6 +14633,114 @@ public final class Comm {
         return this;
       }
 
+      private java.lang.Object ip_ = "";
+      /**
+       * <code>optional string ip = 11;</code>
+       */
+      public boolean hasIp() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional string ip = 11;</code>
+       */
+      public java.lang.String getIp() {
+        java.lang.Object ref = ip_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            ip_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string ip = 11;</code>
+       */
+      public com.google.protobuf.ByteString
+          getIpBytes() {
+        java.lang.Object ref = ip_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          ip_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string ip = 11;</code>
+       */
+      public Builder setIp(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        ip_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string ip = 11;</code>
+       */
+      public Builder clearIp() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        ip_ = getDefaultInstance().getIp();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string ip = 11;</code>
+       */
+      public Builder setIpBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        ip_ = value;
+        onChanged();
+        return this;
+      }
+
+      private int port_ ;
+      /**
+       * <code>optional int32 port = 12;</code>
+       */
+      public boolean hasPort() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional int32 port = 12;</code>
+       */
+      public int getPort() {
+        return port_;
+      }
+      /**
+       * <code>optional int32 port = 12;</code>
+       */
+      public Builder setPort(int value) {
+        bitField0_ |= 0x00000020;
+        port_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 port = 12;</code>
+       */
+      public Builder clearPort() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        port_ = 0;
+        onChanged();
+        return this;
+      }
+
       private eye.Comm.PhotoHeader photoHeader_ = eye.Comm.PhotoHeader.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           eye.Comm.PhotoHeader, eye.Comm.PhotoHeader.Builder, eye.Comm.PhotoHeaderOrBuilder> photoHeaderBuilder_;
@@ -14356,20 +14748,20 @@ public final class Comm {
        * <code>optional .PhotoHeader photoHeader = 10;</code>
        *
        * <pre>
-       * while we can use extensions, it is not a clean inheritance 
-       * implementation and since requests and responses differ only 
+       * while we can use extensions, it is not a clean inheritance
+       * implementation and since requests and responses differ only
        * by these two fields, a new message is not created.
        * </pre>
        */
       public boolean hasPhotoHeader() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
        * <code>optional .PhotoHeader photoHeader = 10;</code>
        *
        * <pre>
-       * while we can use extensions, it is not a clean inheritance 
-       * implementation and since requests and responses differ only 
+       * while we can use extensions, it is not a clean inheritance
+       * implementation and since requests and responses differ only
        * by these two fields, a new message is not created.
        * </pre>
        */
@@ -14384,8 +14776,8 @@ public final class Comm {
        * <code>optional .PhotoHeader photoHeader = 10;</code>
        *
        * <pre>
-       * while we can use extensions, it is not a clean inheritance 
-       * implementation and since requests and responses differ only 
+       * while we can use extensions, it is not a clean inheritance
+       * implementation and since requests and responses differ only
        * by these two fields, a new message is not created.
        * </pre>
        */
@@ -14399,15 +14791,15 @@ public final class Comm {
         } else {
           photoHeaderBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000040;
         return this;
       }
       /**
        * <code>optional .PhotoHeader photoHeader = 10;</code>
        *
        * <pre>
-       * while we can use extensions, it is not a clean inheritance 
-       * implementation and since requests and responses differ only 
+       * while we can use extensions, it is not a clean inheritance
+       * implementation and since requests and responses differ only
        * by these two fields, a new message is not created.
        * </pre>
        */
@@ -14419,21 +14811,21 @@ public final class Comm {
         } else {
           photoHeaderBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000040;
         return this;
       }
       /**
        * <code>optional .PhotoHeader photoHeader = 10;</code>
        *
        * <pre>
-       * while we can use extensions, it is not a clean inheritance 
-       * implementation and since requests and responses differ only 
+       * while we can use extensions, it is not a clean inheritance
+       * implementation and since requests and responses differ only
        * by these two fields, a new message is not created.
        * </pre>
        */
       public Builder mergePhotoHeader(eye.Comm.PhotoHeader value) {
         if (photoHeaderBuilder_ == null) {
-          if (((bitField0_ & 0x00000010) == 0x00000010) &&
+          if (((bitField0_ & 0x00000040) == 0x00000040) &&
               photoHeader_ != eye.Comm.PhotoHeader.getDefaultInstance()) {
             photoHeader_ =
               eye.Comm.PhotoHeader.newBuilder(photoHeader_).mergeFrom(value).buildPartial();
@@ -14444,15 +14836,15 @@ public final class Comm {
         } else {
           photoHeaderBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000040;
         return this;
       }
       /**
        * <code>optional .PhotoHeader photoHeader = 10;</code>
        *
        * <pre>
-       * while we can use extensions, it is not a clean inheritance 
-       * implementation and since requests and responses differ only 
+       * while we can use extensions, it is not a clean inheritance
+       * implementation and since requests and responses differ only
        * by these two fields, a new message is not created.
        * </pre>
        */
@@ -14463,20 +14855,20 @@ public final class Comm {
         } else {
           photoHeaderBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
       /**
        * <code>optional .PhotoHeader photoHeader = 10;</code>
        *
        * <pre>
-       * while we can use extensions, it is not a clean inheritance 
-       * implementation and since requests and responses differ only 
+       * while we can use extensions, it is not a clean inheritance
+       * implementation and since requests and responses differ only
        * by these two fields, a new message is not created.
        * </pre>
        */
       public eye.Comm.PhotoHeader.Builder getPhotoHeaderBuilder() {
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000040;
         onChanged();
         return getPhotoHeaderFieldBuilder().getBuilder();
       }
@@ -14484,8 +14876,8 @@ public final class Comm {
        * <code>optional .PhotoHeader photoHeader = 10;</code>
        *
        * <pre>
-       * while we can use extensions, it is not a clean inheritance 
-       * implementation and since requests and responses differ only 
+       * while we can use extensions, it is not a clean inheritance
+       * implementation and since requests and responses differ only
        * by these two fields, a new message is not created.
        * </pre>
        */
@@ -14500,8 +14892,8 @@ public final class Comm {
        * <code>optional .PhotoHeader photoHeader = 10;</code>
        *
        * <pre>
-       * while we can use extensions, it is not a clean inheritance 
-       * implementation and since requests and responses differ only 
+       * while we can use extensions, it is not a clean inheritance
+       * implementation and since requests and responses differ only
        * by these two fields, a new message is not created.
        * </pre>
        */
@@ -14524,7 +14916,7 @@ public final class Comm {
        * <code>optional .PokeStatus reply_code = 5;</code>
        */
       public boolean hasReplyCode() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
        * <code>optional .PokeStatus reply_code = 5;</code>
@@ -14539,7 +14931,7 @@ public final class Comm {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000080;
         replyCode_ = value;
         onChanged();
         return this;
@@ -14548,7 +14940,7 @@ public final class Comm {
        * <code>optional .PokeStatus reply_code = 5;</code>
        */
       public Builder clearReplyCode() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000080);
         replyCode_ = eye.Comm.PokeStatus.UKNOWN;
         onChanged();
         return this;
@@ -14559,7 +14951,7 @@ public final class Comm {
        * <code>optional string reply_msg = 6;</code>
        */
       public boolean hasReplyMsg() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
        * <code>optional string reply_msg = 6;</code>
@@ -14602,7 +14994,7 @@ public final class Comm {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000100;
         replyMsg_ = value;
         onChanged();
         return this;
@@ -14611,7 +15003,7 @@ public final class Comm {
        * <code>optional string reply_msg = 6;</code>
        */
       public Builder clearReplyMsg() {
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000100);
         replyMsg_ = getDefaultInstance().getReplyMsg();
         onChanged();
         return this;
@@ -14624,7 +15016,7 @@ public final class Comm {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000100;
         replyMsg_ = value;
         onChanged();
         return this;
@@ -14633,9 +15025,9 @@ public final class Comm {
       private java.util.List<eye.Comm.RoutingPath> path_ =
         java.util.Collections.emptyList();
       private void ensurePathIsMutable() {
-        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
+        if (!((bitField0_ & 0x00000200) == 0x00000200)) {
           path_ = new java.util.ArrayList<eye.Comm.RoutingPath>(path_);
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000200;
          }
       }
 
@@ -14829,7 +15221,7 @@ public final class Comm {
       public Builder clearPath() {
         if (pathBuilder_ == null) {
           path_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000080);
+          bitField0_ = (bitField0_ & ~0x00000200);
           onChanged();
         } else {
           pathBuilder_.clear();
@@ -14934,7 +15326,7 @@ public final class Comm {
           pathBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               eye.Comm.RoutingPath, eye.Comm.RoutingPath.Builder, eye.Comm.RoutingPathOrBuilder>(
                   path_,
-                  ((bitField0_ & 0x00000080) == 0x00000080),
+                  ((bitField0_ & 0x00000200) == 0x00000200),
                   getParentForChildren(),
                   isClean());
           path_ = null;
@@ -14951,7 +15343,7 @@ public final class Comm {
        * </pre>
        */
       public boolean hasToNode() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
        * <code>optional int32 toNode = 8;</code>
@@ -14971,7 +15363,7 @@ public final class Comm {
        * </pre>
        */
       public Builder setToNode(int value) {
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000400;
         toNode_ = value;
         onChanged();
         return this;
@@ -14984,7 +15376,7 @@ public final class Comm {
        * </pre>
        */
       public Builder clearToNode() {
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000400);
         toNode_ = 0;
         onChanged();
         return this;
@@ -14993,9 +15385,9 @@ public final class Comm {
       private java.util.List<eye.Comm.NameValueSet> options_ =
         java.util.Collections.emptyList();
       private void ensureOptionsIsMutable() {
-        if (!((bitField0_ & 0x00000200) == 0x00000200)) {
+        if (!((bitField0_ & 0x00000800) == 0x00000800)) {
           options_ = new java.util.ArrayList<eye.Comm.NameValueSet>(options_);
-          bitField0_ |= 0x00000200;
+          bitField0_ |= 0x00000800;
          }
       }
 
@@ -15189,7 +15581,7 @@ public final class Comm {
       public Builder clearOptions() {
         if (optionsBuilder_ == null) {
           options_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000200);
+          bitField0_ = (bitField0_ & ~0x00000800);
           onChanged();
         } else {
           optionsBuilder_.clear();
@@ -15294,7 +15686,7 @@ public final class Comm {
           optionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               eye.Comm.NameValueSet, eye.Comm.NameValueSet.Builder, eye.Comm.NameValueSetOrBuilder>(
                   options_,
-                  ((bitField0_ & 0x00000200) == 0x00000200),
+                  ((bitField0_ & 0x00000800) == 0x00000800),
                   getParentForChildren(),
                   isClean());
           options_ = null;
@@ -15420,14 +15812,29 @@ public final class Comm {
 
     /**
      * <code>optional .NameSpaceStatus space_status = 12;</code>
+     *
+     * <pre>
+     * TBD
+     * reports
+     * </pre>
      */
     boolean hasSpaceStatus();
     /**
      * <code>optional .NameSpaceStatus space_status = 12;</code>
+     *
+     * <pre>
+     * TBD
+     * reports
+     * </pre>
      */
     eye.Comm.NameSpaceStatus getSpaceStatus();
     /**
      * <code>optional .NameSpaceStatus space_status = 12;</code>
+     *
+     * <pre>
+     * TBD
+     * reports
+     * </pre>
      */
     eye.Comm.NameSpaceStatusOrBuilder getSpaceStatusOrBuilder();
   }
@@ -15751,18 +16158,33 @@ public final class Comm {
     private eye.Comm.NameSpaceStatus spaceStatus_;
     /**
      * <code>optional .NameSpaceStatus space_status = 12;</code>
+     *
+     * <pre>
+     * TBD
+     * reports
+     * </pre>
      */
     public boolean hasSpaceStatus() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>optional .NameSpaceStatus space_status = 12;</code>
+     *
+     * <pre>
+     * TBD
+     * reports
+     * </pre>
      */
     public eye.Comm.NameSpaceStatus getSpaceStatus() {
       return spaceStatus_;
     }
     /**
      * <code>optional .NameSpaceStatus space_status = 12;</code>
+     *
+     * <pre>
+     * TBD
+     * reports
+     * </pre>
      */
     public eye.Comm.NameSpaceStatusOrBuilder getSpaceStatusOrBuilder() {
       return spaceStatus_;
@@ -16894,12 +17316,22 @@ public final class Comm {
           eye.Comm.NameSpaceStatus, eye.Comm.NameSpaceStatus.Builder, eye.Comm.NameSpaceStatusOrBuilder> spaceStatusBuilder_;
       /**
        * <code>optional .NameSpaceStatus space_status = 12;</code>
+       *
+       * <pre>
+       * TBD
+       * reports
+       * </pre>
        */
       public boolean hasSpaceStatus() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
        * <code>optional .NameSpaceStatus space_status = 12;</code>
+       *
+       * <pre>
+       * TBD
+       * reports
+       * </pre>
        */
       public eye.Comm.NameSpaceStatus getSpaceStatus() {
         if (spaceStatusBuilder_ == null) {
@@ -16910,6 +17342,11 @@ public final class Comm {
       }
       /**
        * <code>optional .NameSpaceStatus space_status = 12;</code>
+       *
+       * <pre>
+       * TBD
+       * reports
+       * </pre>
        */
       public Builder setSpaceStatus(eye.Comm.NameSpaceStatus value) {
         if (spaceStatusBuilder_ == null) {
@@ -16926,6 +17363,11 @@ public final class Comm {
       }
       /**
        * <code>optional .NameSpaceStatus space_status = 12;</code>
+       *
+       * <pre>
+       * TBD
+       * reports
+       * </pre>
        */
       public Builder setSpaceStatus(
           eye.Comm.NameSpaceStatus.Builder builderForValue) {
@@ -16940,6 +17382,11 @@ public final class Comm {
       }
       /**
        * <code>optional .NameSpaceStatus space_status = 12;</code>
+       *
+       * <pre>
+       * TBD
+       * reports
+       * </pre>
        */
       public Builder mergeSpaceStatus(eye.Comm.NameSpaceStatus value) {
         if (spaceStatusBuilder_ == null) {
@@ -16959,6 +17406,11 @@ public final class Comm {
       }
       /**
        * <code>optional .NameSpaceStatus space_status = 12;</code>
+       *
+       * <pre>
+       * TBD
+       * reports
+       * </pre>
        */
       public Builder clearSpaceStatus() {
         if (spaceStatusBuilder_ == null) {
@@ -16972,6 +17424,11 @@ public final class Comm {
       }
       /**
        * <code>optional .NameSpaceStatus space_status = 12;</code>
+       *
+       * <pre>
+       * TBD
+       * reports
+       * </pre>
        */
       public eye.Comm.NameSpaceStatus.Builder getSpaceStatusBuilder() {
         bitField0_ |= 0x00000020;
@@ -16980,6 +17437,11 @@ public final class Comm {
       }
       /**
        * <code>optional .NameSpaceStatus space_status = 12;</code>
+       *
+       * <pre>
+       * TBD
+       * reports
+       * </pre>
        */
       public eye.Comm.NameSpaceStatusOrBuilder getSpaceStatusOrBuilder() {
         if (spaceStatusBuilder_ != null) {
@@ -16990,6 +17452,11 @@ public final class Comm {
       }
       /**
        * <code>optional .NameSpaceStatus space_status = 12;</code>
+       *
+       * <pre>
+       * TBD
+       * reports
+       * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
           eye.Comm.NameSpaceStatus, eye.Comm.NameSpaceStatus.Builder, eye.Comm.NameSpaceStatusOrBuilder> 
@@ -18937,8 +19404,8 @@ public final class Comm {
      * <code>optional int32 hops = 7 [default = -1];</code>
      *
      * <pre>
-     * the number of times this message should be propagated. 
-     * For Flooding, this is the diameter of the graph to ensure 
+     * the number of times this message should be propagated.
+     * For Flooding, this is the diameter of the graph to ensure
      * a message can reach all nodes. If the diameter is unknown,
      * limiting the hops will create non-deterministic results.
      * </pre>
@@ -18948,8 +19415,8 @@ public final class Comm {
      * <code>optional int32 hops = 7 [default = -1];</code>
      *
      * <pre>
-     * the number of times this message should be propagated. 
-     * For Flooding, this is the diameter of the graph to ensure 
+     * the number of times this message should be propagated.
+     * For Flooding, this is the diameter of the graph to ensure
      * a message can reach all nodes. If the diameter is unknown,
      * limiting the hops will create non-deterministic results.
      * </pre>
@@ -19368,8 +19835,8 @@ public final class Comm {
      * <code>optional int32 hops = 7 [default = -1];</code>
      *
      * <pre>
-     * the number of times this message should be propagated. 
-     * For Flooding, this is the diameter of the graph to ensure 
+     * the number of times this message should be propagated.
+     * For Flooding, this is the diameter of the graph to ensure
      * a message can reach all nodes. If the diameter is unknown,
      * limiting the hops will create non-deterministic results.
      * </pre>
@@ -19381,8 +19848,8 @@ public final class Comm {
      * <code>optional int32 hops = 7 [default = -1];</code>
      *
      * <pre>
-     * the number of times this message should be propagated. 
-     * For Flooding, this is the diameter of the graph to ensure 
+     * the number of times this message should be propagated.
+     * For Flooding, this is the diameter of the graph to ensure
      * a message can reach all nodes. If the diameter is unknown,
      * limiting the hops will create non-deterministic results.
      * </pre>
@@ -20029,8 +20496,8 @@ public final class Comm {
        * <code>optional int32 hops = 7 [default = -1];</code>
        *
        * <pre>
-       * the number of times this message should be propagated. 
-       * For Flooding, this is the diameter of the graph to ensure 
+       * the number of times this message should be propagated.
+       * For Flooding, this is the diameter of the graph to ensure
        * a message can reach all nodes. If the diameter is unknown,
        * limiting the hops will create non-deterministic results.
        * </pre>
@@ -20042,8 +20509,8 @@ public final class Comm {
        * <code>optional int32 hops = 7 [default = -1];</code>
        *
        * <pre>
-       * the number of times this message should be propagated. 
-       * For Flooding, this is the diameter of the graph to ensure 
+       * the number of times this message should be propagated.
+       * For Flooding, this is the diameter of the graph to ensure
        * a message can reach all nodes. If the diameter is unknown,
        * limiting the hops will create non-deterministic results.
        * </pre>
@@ -20055,8 +20522,8 @@ public final class Comm {
        * <code>optional int32 hops = 7 [default = -1];</code>
        *
        * <pre>
-       * the number of times this message should be propagated. 
-       * For Flooding, this is the diameter of the graph to ensure 
+       * the number of times this message should be propagated.
+       * For Flooding, this is the diameter of the graph to ensure
        * a message can reach all nodes. If the diameter is unknown,
        * limiting the hops will create non-deterministic results.
        * </pre>
@@ -20071,8 +20538,8 @@ public final class Comm {
        * <code>optional int32 hops = 7 [default = -1];</code>
        *
        * <pre>
-       * the number of times this message should be propagated. 
-       * For Flooding, this is the diameter of the graph to ensure 
+       * the number of times this message should be propagated.
+       * For Flooding, this is the diameter of the graph to ensure
        * a message can reach all nodes. If the diameter is unknown,
        * limiting the hops will create non-deterministic results.
        * </pre>
@@ -20174,8 +20641,8 @@ public final class Comm {
      * <code>optional int32 max_hops = 8 [default = -1];</code>
      *
      * <pre>
-     * interesting/novel idea is to support localized elections for near-cooperation 
-     * events. This factor limits the hops that a vote occurs within a network 
+     * interesting/novel idea is to support localized elections for near-cooperation
+     * events. This factor limits the hops that a vote occurs within a network
      * relative to the initiating node. Default (-1) is the whole network.
      * </pre>
      */
@@ -20184,8 +20651,8 @@ public final class Comm {
      * <code>optional int32 max_hops = 8 [default = -1];</code>
      *
      * <pre>
-     * interesting/novel idea is to support localized elections for near-cooperation 
-     * events. This factor limits the hops that a vote occurs within a network 
+     * interesting/novel idea is to support localized elections for near-cooperation
+     * events. This factor limits the hops that a vote occurs within a network
      * relative to the initiating node. Default (-1) is the whole network.
      * </pre>
      */
@@ -20576,8 +21043,8 @@ public final class Comm {
      * <code>optional int32 max_hops = 8 [default = -1];</code>
      *
      * <pre>
-     * interesting/novel idea is to support localized elections for near-cooperation 
-     * events. This factor limits the hops that a vote occurs within a network 
+     * interesting/novel idea is to support localized elections for near-cooperation
+     * events. This factor limits the hops that a vote occurs within a network
      * relative to the initiating node. Default (-1) is the whole network.
      * </pre>
      */
@@ -20588,8 +21055,8 @@ public final class Comm {
      * <code>optional int32 max_hops = 8 [default = -1];</code>
      *
      * <pre>
-     * interesting/novel idea is to support localized elections for near-cooperation 
-     * events. This factor limits the hops that a vote occurs within a network 
+     * interesting/novel idea is to support localized elections for near-cooperation
+     * events. This factor limits the hops that a vote occurs within a network
      * relative to the initiating node. Default (-1) is the whole network.
      * </pre>
      */
@@ -21231,8 +21698,8 @@ public final class Comm {
        * <code>optional int32 max_hops = 8 [default = -1];</code>
        *
        * <pre>
-       * interesting/novel idea is to support localized elections for near-cooperation 
-       * events. This factor limits the hops that a vote occurs within a network 
+       * interesting/novel idea is to support localized elections for near-cooperation
+       * events. This factor limits the hops that a vote occurs within a network
        * relative to the initiating node. Default (-1) is the whole network.
        * </pre>
        */
@@ -21243,8 +21710,8 @@ public final class Comm {
        * <code>optional int32 max_hops = 8 [default = -1];</code>
        *
        * <pre>
-       * interesting/novel idea is to support localized elections for near-cooperation 
-       * events. This factor limits the hops that a vote occurs within a network 
+       * interesting/novel idea is to support localized elections for near-cooperation
+       * events. This factor limits the hops that a vote occurs within a network
        * relative to the initiating node. Default (-1) is the whole network.
        * </pre>
        */
@@ -21255,8 +21722,8 @@ public final class Comm {
        * <code>optional int32 max_hops = 8 [default = -1];</code>
        *
        * <pre>
-       * interesting/novel idea is to support localized elections for near-cooperation 
-       * events. This factor limits the hops that a vote occurs within a network 
+       * interesting/novel idea is to support localized elections for near-cooperation
+       * events. This factor limits the hops that a vote occurs within a network
        * relative to the initiating node. Default (-1) is the whole network.
        * </pre>
        */
@@ -21270,8 +21737,8 @@ public final class Comm {
        * <code>optional int32 max_hops = 8 [default = -1];</code>
        *
        * <pre>
-       * interesting/novel idea is to support localized elections for near-cooperation 
-       * events. This factor limits the hops that a vote occurs within a network 
+       * interesting/novel idea is to support localized elections for near-cooperation
+       * events. This factor limits the hops that a vote occurs within a network
        * relative to the initiating node. Default (-1) is the whole network.
        * </pre>
        */
@@ -21329,6 +21796,10 @@ public final class Comm {
      * <code>optional int32 candidate = 10;</code>
      *
      * <pre>
+     * voting may not require a candidate other than a 'yup' and silence
+     * for 'nope'. So, these fields are optional. Secondly, voting algo
+     * that requires ranking or cumulative approach will have to submit
+     * multiple messages
      * the voting item (candidate)
      * </pre>
      */
@@ -21337,6 +21808,10 @@ public final class Comm {
      * <code>optional int32 candidate = 10;</code>
      *
      * <pre>
+     * voting may not require a candidate other than a 'yup' and silence
+     * for 'nope'. So, these fields are optional. Secondly, voting algo
+     * that requires ranking or cumulative approach will have to submit
+     * multiple messages
      * the voting item (candidate)
      * </pre>
      */
@@ -21567,6 +22042,10 @@ public final class Comm {
      * <code>optional int32 candidate = 10;</code>
      *
      * <pre>
+     * voting may not require a candidate other than a 'yup' and silence
+     * for 'nope'. So, these fields are optional. Secondly, voting algo
+     * that requires ranking or cumulative approach will have to submit
+     * multiple messages
      * the voting item (candidate)
      * </pre>
      */
@@ -21577,6 +22056,10 @@ public final class Comm {
      * <code>optional int32 candidate = 10;</code>
      *
      * <pre>
+     * voting may not require a candidate other than a 'yup' and silence
+     * for 'nope'. So, these fields are optional. Secondly, voting algo
+     * that requires ranking or cumulative approach will have to submit
+     * multiple messages
      * the voting item (candidate)
      * </pre>
      */
@@ -22068,6 +22551,10 @@ public final class Comm {
        * <code>optional int32 candidate = 10;</code>
        *
        * <pre>
+       * voting may not require a candidate other than a 'yup' and silence
+       * for 'nope'. So, these fields are optional. Secondly, voting algo
+       * that requires ranking or cumulative approach will have to submit
+       * multiple messages
        * the voting item (candidate)
        * </pre>
        */
@@ -22078,6 +22565,10 @@ public final class Comm {
        * <code>optional int32 candidate = 10;</code>
        *
        * <pre>
+       * voting may not require a candidate other than a 'yup' and silence
+       * for 'nope'. So, these fields are optional. Secondly, voting algo
+       * that requires ranking or cumulative approach will have to submit
+       * multiple messages
        * the voting item (candidate)
        * </pre>
        */
@@ -22088,6 +22579,10 @@ public final class Comm {
        * <code>optional int32 candidate = 10;</code>
        *
        * <pre>
+       * voting may not require a candidate other than a 'yup' and silence
+       * for 'nope'. So, these fields are optional. Secondly, voting algo
+       * that requires ranking or cumulative approach will have to submit
+       * multiple messages
        * the voting item (candidate)
        * </pre>
        */
@@ -22101,6 +22596,10 @@ public final class Comm {
        * <code>optional int32 candidate = 10;</code>
        *
        * <pre>
+       * voting may not require a candidate other than a 'yup' and silence
+       * for 'nope'. So, these fields are optional. Secondly, voting algo
+       * that requires ranking or cumulative approach will have to submit
+       * multiple messages
        * the voting item (candidate)
        * </pre>
        */
@@ -24073,7 +24572,7 @@ public final class Comm {
      * <code>optional .LeaderElection election = 4;</code>
      *
      * <pre>
-     * declare an election for a new leader 
+     * declare an election for a new leader
      * </pre>
      */
     boolean hasElection();
@@ -24081,7 +24580,7 @@ public final class Comm {
      * <code>optional .LeaderElection election = 4;</code>
      *
      * <pre>
-     * declare an election for a new leader 
+     * declare an election for a new leader
      * </pre>
      */
     eye.Comm.LeaderElection getElection();
@@ -24089,7 +24588,7 @@ public final class Comm {
      * <code>optional .LeaderElection election = 4;</code>
      *
      * <pre>
-     * declare an election for a new leader 
+     * declare an election for a new leader
      * </pre>
      */
     eye.Comm.LeaderElectionOrBuilder getElectionOrBuilder();
@@ -24098,7 +24597,7 @@ public final class Comm {
      * <code>optional .JobProposal job_propose = 5;</code>
      *
      * <pre>
-     * job management 
+     * job management
      * TODO should this be here or in the request?
      * </pre>
      */
@@ -24107,7 +24606,7 @@ public final class Comm {
      * <code>optional .JobProposal job_propose = 5;</code>
      *
      * <pre>
-     * job management 
+     * job management
      * TODO should this be here or in the request?
      * </pre>
      */
@@ -24116,7 +24615,7 @@ public final class Comm {
      * <code>optional .JobProposal job_propose = 5;</code>
      *
      * <pre>
-     * job management 
+     * job management
      * TODO should this be here or in the request?
      * </pre>
      */
@@ -24492,7 +24991,7 @@ public final class Comm {
      * <code>optional .LeaderElection election = 4;</code>
      *
      * <pre>
-     * declare an election for a new leader 
+     * declare an election for a new leader
      * </pre>
      */
     public boolean hasElection() {
@@ -24502,7 +25001,7 @@ public final class Comm {
      * <code>optional .LeaderElection election = 4;</code>
      *
      * <pre>
-     * declare an election for a new leader 
+     * declare an election for a new leader
      * </pre>
      */
     public eye.Comm.LeaderElection getElection() {
@@ -24512,7 +25011,7 @@ public final class Comm {
      * <code>optional .LeaderElection election = 4;</code>
      *
      * <pre>
-     * declare an election for a new leader 
+     * declare an election for a new leader
      * </pre>
      */
     public eye.Comm.LeaderElectionOrBuilder getElectionOrBuilder() {
@@ -24525,7 +25024,7 @@ public final class Comm {
      * <code>optional .JobProposal job_propose = 5;</code>
      *
      * <pre>
-     * job management 
+     * job management
      * TODO should this be here or in the request?
      * </pre>
      */
@@ -24536,7 +25035,7 @@ public final class Comm {
      * <code>optional .JobProposal job_propose = 5;</code>
      *
      * <pre>
-     * job management 
+     * job management
      * TODO should this be here or in the request?
      * </pre>
      */
@@ -24547,7 +25046,7 @@ public final class Comm {
      * <code>optional .JobProposal job_propose = 5;</code>
      *
      * <pre>
-     * job management 
+     * job management
      * TODO should this be here or in the request?
      * </pre>
      */
@@ -25640,7 +26139,7 @@ public final class Comm {
        * <code>optional .LeaderElection election = 4;</code>
        *
        * <pre>
-       * declare an election for a new leader 
+       * declare an election for a new leader
        * </pre>
        */
       public boolean hasElection() {
@@ -25650,7 +26149,7 @@ public final class Comm {
        * <code>optional .LeaderElection election = 4;</code>
        *
        * <pre>
-       * declare an election for a new leader 
+       * declare an election for a new leader
        * </pre>
        */
       public eye.Comm.LeaderElection getElection() {
@@ -25664,7 +26163,7 @@ public final class Comm {
        * <code>optional .LeaderElection election = 4;</code>
        *
        * <pre>
-       * declare an election for a new leader 
+       * declare an election for a new leader
        * </pre>
        */
       public Builder setElection(eye.Comm.LeaderElection value) {
@@ -25684,7 +26183,7 @@ public final class Comm {
        * <code>optional .LeaderElection election = 4;</code>
        *
        * <pre>
-       * declare an election for a new leader 
+       * declare an election for a new leader
        * </pre>
        */
       public Builder setElection(
@@ -25702,7 +26201,7 @@ public final class Comm {
        * <code>optional .LeaderElection election = 4;</code>
        *
        * <pre>
-       * declare an election for a new leader 
+       * declare an election for a new leader
        * </pre>
        */
       public Builder mergeElection(eye.Comm.LeaderElection value) {
@@ -25725,7 +26224,7 @@ public final class Comm {
        * <code>optional .LeaderElection election = 4;</code>
        *
        * <pre>
-       * declare an election for a new leader 
+       * declare an election for a new leader
        * </pre>
        */
       public Builder clearElection() {
@@ -25742,7 +26241,7 @@ public final class Comm {
        * <code>optional .LeaderElection election = 4;</code>
        *
        * <pre>
-       * declare an election for a new leader 
+       * declare an election for a new leader
        * </pre>
        */
       public eye.Comm.LeaderElection.Builder getElectionBuilder() {
@@ -25754,7 +26253,7 @@ public final class Comm {
        * <code>optional .LeaderElection election = 4;</code>
        *
        * <pre>
-       * declare an election for a new leader 
+       * declare an election for a new leader
        * </pre>
        */
       public eye.Comm.LeaderElectionOrBuilder getElectionOrBuilder() {
@@ -25768,7 +26267,7 @@ public final class Comm {
        * <code>optional .LeaderElection election = 4;</code>
        *
        * <pre>
-       * declare an election for a new leader 
+       * declare an election for a new leader
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
@@ -25792,7 +26291,7 @@ public final class Comm {
        * <code>optional .JobProposal job_propose = 5;</code>
        *
        * <pre>
-       * job management 
+       * job management
        * TODO should this be here or in the request?
        * </pre>
        */
@@ -25803,7 +26302,7 @@ public final class Comm {
        * <code>optional .JobProposal job_propose = 5;</code>
        *
        * <pre>
-       * job management 
+       * job management
        * TODO should this be here or in the request?
        * </pre>
        */
@@ -25818,7 +26317,7 @@ public final class Comm {
        * <code>optional .JobProposal job_propose = 5;</code>
        *
        * <pre>
-       * job management 
+       * job management
        * TODO should this be here or in the request?
        * </pre>
        */
@@ -25839,7 +26338,7 @@ public final class Comm {
        * <code>optional .JobProposal job_propose = 5;</code>
        *
        * <pre>
-       * job management 
+       * job management
        * TODO should this be here or in the request?
        * </pre>
        */
@@ -25858,7 +26357,7 @@ public final class Comm {
        * <code>optional .JobProposal job_propose = 5;</code>
        *
        * <pre>
-       * job management 
+       * job management
        * TODO should this be here or in the request?
        * </pre>
        */
@@ -25882,7 +26381,7 @@ public final class Comm {
        * <code>optional .JobProposal job_propose = 5;</code>
        *
        * <pre>
-       * job management 
+       * job management
        * TODO should this be here or in the request?
        * </pre>
        */
@@ -25900,7 +26399,7 @@ public final class Comm {
        * <code>optional .JobProposal job_propose = 5;</code>
        *
        * <pre>
-       * job management 
+       * job management
        * TODO should this be here or in the request?
        * </pre>
        */
@@ -25913,7 +26412,7 @@ public final class Comm {
        * <code>optional .JobProposal job_propose = 5;</code>
        *
        * <pre>
-       * job management 
+       * job management
        * TODO should this be here or in the request?
        * </pre>
        */
@@ -25928,7 +26427,7 @@ public final class Comm {
        * <code>optional .JobProposal job_propose = 5;</code>
        *
        * <pre>
-       * job management 
+       * job management
        * TODO should this be here or in the request?
        * </pre>
        */
@@ -26593,97 +27092,98 @@ public final class Comm {
       "E\020\002\"\224\001\n\tNameSpace\022\021\n\005ns_id\030\002 \002(\003:\002-1\022\014\n\004" +
       "name\030\003 \001(\t\022\014\n\004desc\030\004 \001(\t\022\017\n\007created\030\005 \001(" +
       "\003\022\025\n\rlast_modified\030\006 \001(\003\022\r\n\005owner\030\007 \001(\t\022" +
-      "!\n\nproperties\030\010 \001(\0132\r.NameValueSet\"\203\002\n\013P" +
+      "!\n\nproperties\030\010 \001(\0132\r.NameValueSet\"\226\002\n\013P" +
       "hotoHeader\0223\n\013requestType\030\001 \001(\0162\030.PhotoH" +
       "eader.RequestType:\004read\0228\n\014responseFlag\030",
       "\002 \001(\0162\031.PhotoHeader.ResponseFlag:\007succes" +
       "s\022\024\n\014lastModified\030\003 \001(\003\022\025\n\rcontentLength" +
-      "\030\004 \001(\005\".\n\013RequestType\022\010\n\004read\020\000\022\t\n\005write" +
-      "\020\001\022\n\n\006delete\020\002\"(\n\014ResponseFlag\022\013\n\007succes" +
-      "s\020\000\022\013\n\007failure\020\001\"8\n\014PhotoPayload\022\014\n\004uuid" +
-      "\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\014\n\004data\030\003 \001(\014\"\352\001\n\007J" +
-      "obDesc\022\022\n\nname_space\030\001 \002(\t\022\020\n\010owner_id\030\002" +
-      " \002(\003\022\016\n\006job_id\030\003 \002(\t\022 \n\006status\030\004 \002(\0162\020.J" +
-      "obDesc.JobCode\022\036\n\007options\030\005 \001(\0132\r.NameVa" +
-      "lueSet\"g\n\007JobCode\022\016\n\nJOBUNKNOWN\020\001\022\017\n\013JOB",
-      "RECEIVED\020\002\022\r\n\tJOBQUEUED\020\003\022\016\n\nJOBRUNNING\020" +
-      "\004\022\r\n\tJOBKILLED\020d\022\r\n\tJOBFAILED\020e\"#\n\004Ping\022" +
-      "\016\n\006number\030\001 \002(\005\022\013\n\003tag\030\002 \002(\t\"\341\001\n\022NameSpa" +
-      "ceOperation\022/\n\006action\030\001 \002(\0162\037.NameSpaceO" +
-      "peration.SpaceAction\022\021\n\005ns_id\030\002 \001(\003:\002-1\022" +
-      "\030\n\004data\030\003 \001(\0132\n.NameSpace\022\036\n\007options\030\004 \001" +
-      "(\0132\r.NameValueSet\"M\n\013SpaceAction\022\014\n\010ADDS" +
-      "PACE\020\001\022\017\n\013UPDATESPACE\020\002\022\017\n\013REMOVESPACE\020\003" +
-      "\022\016\n\nLISTSPACES\020\004\"H\n\017NameSpaceStatus\022\033\n\006s" +
-      "tatus\030\001 \002(\0162\013.PokeStatus\022\030\n\004data\030\002 \003(\0132\n",
-      ".NameSpace\"\242\001\n\014JobOperation\022\'\n\006action\030\001 " +
-      "\002(\0162\027.JobOperation.JobAction\022\016\n\006job_id\030\002" +
-      " \001(\t\022\026\n\004data\030\003 \001(\0132\010.JobDesc\"A\n\tJobActio" +
-      "n\022\n\n\006ADDJOB\020\001\022\013\n\007STOPJOB\020\002\022\r\n\tREMOVEJOB\020" +
-      "\003\022\014\n\010LISTJOBS\020\004\"s\n\013JobProposal\022\022\n\nname_s" +
-      "pace\030\001 \002(\t\022\020\n\010owner_id\030\002 \002(\003\022\016\n\006job_id\030\003" +
-      " \002(\t\022\016\n\006weight\030\004 \002(\005\022\036\n\007options\030\005 \001(\0132\r." +
-      "NameValueSet\"K\n\006JobBid\022\022\n\nname_space\030\001 \002" +
-      "(\t\022\020\n\010owner_id\030\002 \002(\003\022\016\n\006job_id\030\003 \002(\t\022\013\n\003" +
-      "bid\030\004 \002(\005\"u\n\tJobStatus\022\016\n\006job_id\030\001 \002(\t\022\033",
-      "\n\006status\030\002 \002(\0162\013.PokeStatus\022#\n\tjob_state" +
-      "\030\003 \002(\0162\020.JobDesc.JobCode\022\026\n\004data\030\004 \003(\0132\010" +
-      ".JobDesc\",\n\013RoutingPath\022\017\n\007node_id\030\001 \002(\005" +
-      "\022\014\n\004time\030\002 \002(\003\"\307\002\n\006Header\022#\n\nrouting_id\030" +
-      "\001 \002(\0162\017.Header.Routing\022\022\n\noriginator\030\002 \002" +
-      "(\005\022\013\n\003tag\030\003 \001(\t\022\014\n\004time\030\004 \001(\003\022!\n\013photoHe" +
-      "ader\030\n \001(\0132\014.PhotoHeader\022\037\n\nreply_code\030\005" +
-      " \001(\0162\013.PokeStatus\022\021\n\treply_msg\030\006 \001(\t\022\032\n\004" +
-      "path\030\007 \003(\0132\014.RoutingPath\022\016\n\006toNode\030\010 \001(\005" +
-      "\022\036\n\007options\030\t \003(\0132\r.NameValueSet\"F\n\007Rout",
-      "ing\022\010\n\004PING\020\002\022\016\n\nNAMESPACES\020\003\022\010\n\004JOBS\020\004\022" +
-      "\013\n\007REPORTS\020\n\022\n\n\006MANAGE\020d\"\321\001\n\007Payload\022\023\n\004" +
-      "ping\030\001 \001(\0132\005.Ping\022%\n\010space_op\030\002 \001(\0132\023.Na" +
-      "meSpaceOperation\022\035\n\006job_op\030\003 \001(\0132\r.JobOp" +
-      "eration\022#\n\014photoPayload\030\004 \001(\0132\r.PhotoPay" +
-      "load\022\036\n\njob_status\030\r \001(\0132\n.JobStatus\022&\n\014" +
-      "space_status\030\014 \001(\0132\020.NameSpaceStatus\":\n\007" +
-      "Request\022\027\n\006header\030\001 \002(\0132\007.Header\022\026\n\004body" +
-      "\030\002 \002(\0132\010.Payload\"\035\n\tHeartbeat\022\020\n\010time_re" +
-      "f\030\002 \002(\003\"\303\001\n\007Network\022\024\n\014from_node_id\030\001 \002(",
-      "\005\022\022\n\nto_node_id\030\002 \002(\005\022&\n\006action\030\003 \002(\0162\026." +
-      "Network.NetworkAction\"f\n\rNetworkAction\022\014" +
-      "\n\010NODEJOIN\020\001\022\r\n\tNODELEAVE\020\002\022\014\n\010NODEDEAD\020" +
-      "\003\022\r\n\tCREATEMAP\0207\022\014\n\010ANNOUNCE\0208\022\r\n\010SHUTDO" +
-      "WN\020\347\007\"\243\002\n\016LeaderElection\022\020\n\010elect_id\030\002 \002" +
-      "(\t\022\024\n\014candidate_id\030\003 \002(\005\022\014\n\004desc\030\004 \001(\t\022+" +
-      "\n\006action\030\005 \002(\0162\033.LeaderElection.ElectAct" +
-      "ion\022\023\n\007expires\030\006 \001(\003:\002-1\022\020\n\004hops\030\007 \001(\005:\002" +
-      "-1\"\206\001\n\013ElectAction\022\023\n\017DECLAREELECTION\020\001\022" +
-      "\014\n\010NOMINATE\020\002\022\013\n\007ABSTAIN\020\003\022\021\n\rDECLAREWIN",
-      "NER\020\004\022\017\n\013DECLAREVOID\020\005\022\022\n\016WHOISTHELEADER" +
-      "\020\006\022\017\n\013THELEADERIS\020\007\"\200\002\n\014VotingBallot\022\021\n\t" +
-      "ballot_id\030\001 \002(\t\022\014\n\004desc\030\002 \002(\t\022/\n\rballot_" +
-      "format\030\003 \002(\0162\030.VotingBallot.BallotType\022\023" +
-      "\n\013expires_sec\030\006 \001(\003\022\025\n\rmargin_to_win\030\007 \001" +
-      "(\005\022\024\n\010max_hops\030\010 \001(\005:\002-1\"\\\n\nBallotType\022\022" +
-      "\n\016SIMPLEMAJORITY\020\001\022\033\n\027TIMECONSTRAINEDMAJ" +
-      "ORITY\020\002\022\n\n\006RANKED\020\003\022\021\n\rINSTANTRUNOFF\020\004\"O" +
-      "\n\nVotingCast\022\r\n\005voter\030\001 \002(\t\022\021\n\tballot_id" +
-      "\030\002 \002(\t\022\021\n\tcandidate\030\n \001(\005\022\014\n\004rank\030\013 \001(\005\"",
-      "\220\001\n\014VotingStatus\022\021\n\tballot_id\030\001 \002(\t\022(\n\006s" +
-      "tatus\030\002 \002(\0162\030.VotingStatus.VoteStatus\022\016\n" +
-      "\006winner\030\003 \001(\005\"3\n\nVoteStatus\022\023\n\017BALLOTABA" +
-      "NDONED\020\001\022\020\n\014BALLOTWINNER\020\002\"Z\n\nMgmtHeader" +
-      "\022\022\n\noriginator\030\002 \002(\005\022\014\n\004time\030\004 \001(\003\022\032\n\004pa" +
-      "th\030\007 \003(\0132\014.RoutingPath\022\016\n\006toNode\030\010 \001(\005\"\245" +
-      "\002\n\nManagement\022\033\n\006header\030\001 \002(\0132\013.MgmtHead" +
-      "er\022\027\n\005graph\030\002 \001(\0132\010.Network\022\030\n\004beat\030\003 \001(" +
-      "\0132\n.Heartbeat\022!\n\010election\030\004 \001(\0132\017.Leader" +
-      "Election\022!\n\013job_propose\030\005 \001(\0132\014.JobPropo",
-      "sal\022\030\n\007job_bid\030\006 \001(\0132\007.JobBid\022#\n\014vote_de" +
-      "clare\030\007 \001(\0132\r.VotingBallot\022\036\n\tvote_cast\030" +
-      "\010 \001(\0132\013.VotingCast\022\"\n\013vote_status\030\t \001(\0132" +
-      "\r.VotingStatus*\221\001\n\nPokeStatus\022\n\n\006UKNOWN\020" +
-      "\001\022\013\n\007SUCCESS\020\002\022\013\n\007NOFOUND\020d\022\020\n\014NOINCOMPL" +
-      "ETE\020e\022\n\n\006NOAUTH\020f\022\020\n\014NOCONNECTION\020g\022\017\n\013N" +
-      "OREACHABLE\020h\022\016\n\nNORESOURCE\020i\022\014\n\007FAILURE\020" +
-      "\307\001B\007\n\003eyeH\001"
+      "\030\004 \001(\005\022\021\n\tentryNode\030\005 \001(\t\".\n\013RequestType" +
+      "\022\010\n\004read\020\000\022\t\n\005write\020\001\022\n\n\006delete\020\002\"(\n\014Res" +
+      "ponseFlag\022\013\n\007success\020\000\022\013\n\007failure\020\001\"8\n\014P" +
+      "hotoPayload\022\014\n\004uuid\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022" +
+      "\014\n\004data\030\003 \001(\014\"\352\001\n\007JobDesc\022\022\n\nname_space\030" +
+      "\001 \002(\t\022\020\n\010owner_id\030\002 \002(\003\022\016\n\006job_id\030\003 \002(\t\022" +
+      " \n\006status\030\004 \002(\0162\020.JobDesc.JobCode\022\036\n\007opt" +
+      "ions\030\005 \001(\0132\r.NameValueSet\"g\n\007JobCode\022\016\n\n",
+      "JOBUNKNOWN\020\001\022\017\n\013JOBRECEIVED\020\002\022\r\n\tJOBQUEU" +
+      "ED\020\003\022\016\n\nJOBRUNNING\020\004\022\r\n\tJOBKILLED\020d\022\r\n\tJ" +
+      "OBFAILED\020e\"#\n\004Ping\022\016\n\006number\030\001 \002(\005\022\013\n\003ta" +
+      "g\030\002 \002(\t\"\341\001\n\022NameSpaceOperation\022/\n\006action" +
+      "\030\001 \002(\0162\037.NameSpaceOperation.SpaceAction\022" +
+      "\021\n\005ns_id\030\002 \001(\003:\002-1\022\030\n\004data\030\003 \001(\0132\n.NameS" +
+      "pace\022\036\n\007options\030\004 \001(\0132\r.NameValueSet\"M\n\013" +
+      "SpaceAction\022\014\n\010ADDSPACE\020\001\022\017\n\013UPDATESPACE" +
+      "\020\002\022\017\n\013REMOVESPACE\020\003\022\016\n\nLISTSPACES\020\004\"H\n\017N" +
+      "ameSpaceStatus\022\033\n\006status\030\001 \002(\0162\013.PokeSta",
+      "tus\022\030\n\004data\030\002 \003(\0132\n.NameSpace\"\242\001\n\014JobOpe" +
+      "ration\022\'\n\006action\030\001 \002(\0162\027.JobOperation.Jo" +
+      "bAction\022\016\n\006job_id\030\002 \001(\t\022\026\n\004data\030\003 \001(\0132\010." +
+      "JobDesc\"A\n\tJobAction\022\n\n\006ADDJOB\020\001\022\013\n\007STOP" +
+      "JOB\020\002\022\r\n\tREMOVEJOB\020\003\022\014\n\010LISTJOBS\020\004\"s\n\013Jo" +
+      "bProposal\022\022\n\nname_space\030\001 \002(\t\022\020\n\010owner_i" +
+      "d\030\002 \002(\003\022\016\n\006job_id\030\003 \002(\t\022\016\n\006weight\030\004 \002(\005\022" +
+      "\036\n\007options\030\005 \001(\0132\r.NameValueSet\"K\n\006JobBi" +
+      "d\022\022\n\nname_space\030\001 \002(\t\022\020\n\010owner_id\030\002 \002(\003\022" +
+      "\016\n\006job_id\030\003 \002(\t\022\013\n\003bid\030\004 \002(\005\"u\n\tJobStatu",
+      "s\022\016\n\006job_id\030\001 \002(\t\022\033\n\006status\030\002 \002(\0162\013.Poke" +
+      "Status\022#\n\tjob_state\030\003 \002(\0162\020.JobDesc.JobC" +
+      "ode\022\026\n\004data\030\004 \003(\0132\010.JobDesc\",\n\013RoutingPa" +
+      "th\022\017\n\007node_id\030\001 \002(\005\022\014\n\004time\030\002 \002(\003\"\341\002\n\006He" +
+      "ader\022#\n\nrouting_id\030\001 \002(\0162\017.Header.Routin" +
+      "g\022\022\n\noriginator\030\002 \002(\005\022\013\n\003tag\030\003 \001(\t\022\014\n\004ti" +
+      "me\030\004 \001(\003\022\n\n\002ip\030\013 \001(\t\022\014\n\004port\030\014 \001(\005\022!\n\013ph" +
+      "otoHeader\030\n \001(\0132\014.PhotoHeader\022\037\n\nreply_c" +
+      "ode\030\005 \001(\0162\013.PokeStatus\022\021\n\treply_msg\030\006 \001(" +
+      "\t\022\032\n\004path\030\007 \003(\0132\014.RoutingPath\022\016\n\006toNode\030",
+      "\010 \001(\005\022\036\n\007options\030\t \003(\0132\r.NameValueSet\"F\n" +
+      "\007Routing\022\010\n\004PING\020\002\022\016\n\nNAMESPACES\020\003\022\010\n\004JO" +
+      "BS\020\004\022\013\n\007REPORTS\020\n\022\n\n\006MANAGE\020d\"\321\001\n\007Payloa" +
+      "d\022\023\n\004ping\030\001 \001(\0132\005.Ping\022%\n\010space_op\030\002 \001(\013" +
+      "2\023.NameSpaceOperation\022\035\n\006job_op\030\003 \001(\0132\r." +
+      "JobOperation\022#\n\014photoPayload\030\004 \001(\0132\r.Pho" +
+      "toPayload\022\036\n\njob_status\030\r \001(\0132\n.JobStatu" +
+      "s\022&\n\014space_status\030\014 \001(\0132\020.NameSpaceStatu" +
+      "s\":\n\007Request\022\027\n\006header\030\001 \002(\0132\007.Header\022\026\n" +
+      "\004body\030\002 \002(\0132\010.Payload\"\035\n\tHeartbeat\022\020\n\010ti",
+      "me_ref\030\002 \002(\003\"\303\001\n\007Network\022\024\n\014from_node_id" +
+      "\030\001 \002(\005\022\022\n\nto_node_id\030\002 \002(\005\022&\n\006action\030\003 \002" +
+      "(\0162\026.Network.NetworkAction\"f\n\rNetworkAct" +
+      "ion\022\014\n\010NODEJOIN\020\001\022\r\n\tNODELEAVE\020\002\022\014\n\010NODE" +
+      "DEAD\020\003\022\r\n\tCREATEMAP\0207\022\014\n\010ANNOUNCE\0208\022\r\n\010S" +
+      "HUTDOWN\020\347\007\"\243\002\n\016LeaderElection\022\020\n\010elect_i" +
+      "d\030\002 \002(\t\022\024\n\014candidate_id\030\003 \002(\005\022\014\n\004desc\030\004 " +
+      "\001(\t\022+\n\006action\030\005 \002(\0162\033.LeaderElection.Ele" +
+      "ctAction\022\023\n\007expires\030\006 \001(\003:\002-1\022\020\n\004hops\030\007 " +
+      "\001(\005:\002-1\"\206\001\n\013ElectAction\022\023\n\017DECLAREELECTI",
+      "ON\020\001\022\014\n\010NOMINATE\020\002\022\013\n\007ABSTAIN\020\003\022\021\n\rDECLA" +
+      "REWINNER\020\004\022\017\n\013DECLAREVOID\020\005\022\022\n\016WHOISTHEL" +
+      "EADER\020\006\022\017\n\013THELEADERIS\020\007\"\200\002\n\014VotingBallo" +
+      "t\022\021\n\tballot_id\030\001 \002(\t\022\014\n\004desc\030\002 \002(\t\022/\n\rba" +
+      "llot_format\030\003 \002(\0162\030.VotingBallot.BallotT" +
+      "ype\022\023\n\013expires_sec\030\006 \001(\003\022\025\n\rmargin_to_wi" +
+      "n\030\007 \001(\005\022\024\n\010max_hops\030\010 \001(\005:\002-1\"\\\n\nBallotT" +
+      "ype\022\022\n\016SIMPLEMAJORITY\020\001\022\033\n\027TIMECONSTRAIN" +
+      "EDMAJORITY\020\002\022\n\n\006RANKED\020\003\022\021\n\rINSTANTRUNOF" +
+      "F\020\004\"O\n\nVotingCast\022\r\n\005voter\030\001 \002(\t\022\021\n\tball",
+      "ot_id\030\002 \002(\t\022\021\n\tcandidate\030\n \001(\005\022\014\n\004rank\030\013" +
+      " \001(\005\"\220\001\n\014VotingStatus\022\021\n\tballot_id\030\001 \002(\t" +
+      "\022(\n\006status\030\002 \002(\0162\030.VotingStatus.VoteStat" +
+      "us\022\016\n\006winner\030\003 \001(\005\"3\n\nVoteStatus\022\023\n\017BALL" +
+      "OTABANDONED\020\001\022\020\n\014BALLOTWINNER\020\002\"Z\n\nMgmtH" +
+      "eader\022\022\n\noriginator\030\002 \002(\005\022\014\n\004time\030\004 \001(\003\022" +
+      "\032\n\004path\030\007 \003(\0132\014.RoutingPath\022\016\n\006toNode\030\010 " +
+      "\001(\005\"\245\002\n\nManagement\022\033\n\006header\030\001 \002(\0132\013.Mgm" +
+      "tHeader\022\027\n\005graph\030\002 \001(\0132\010.Network\022\030\n\004beat" +
+      "\030\003 \001(\0132\n.Heartbeat\022!\n\010election\030\004 \001(\0132\017.L",
+      "eaderElection\022!\n\013job_propose\030\005 \001(\0132\014.Job" +
+      "Proposal\022\030\n\007job_bid\030\006 \001(\0132\007.JobBid\022#\n\014vo" +
+      "te_declare\030\007 \001(\0132\r.VotingBallot\022\036\n\tvote_" +
+      "cast\030\010 \001(\0132\013.VotingCast\022\"\n\013vote_status\030\t" +
+      " \001(\0132\r.VotingStatus*\221\001\n\nPokeStatus\022\n\n\006UK" +
+      "NOWN\020\001\022\013\n\007SUCCESS\020\002\022\013\n\007NOFOUND\020d\022\020\n\014NOIN" +
+      "COMPLETE\020e\022\n\n\006NOAUTH\020f\022\020\n\014NOCONNECTION\020g" +
+      "\022\017\n\013NOREACHABLE\020h\022\016\n\nNORESOURCE\020i\022\014\n\007FAI" +
+      "LURE\020\307\001B\007\n\003eyeH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -26714,7 +27214,7 @@ public final class Comm {
     internal_static_PhotoHeader_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_PhotoHeader_descriptor,
-        new java.lang.String[] { "RequestType", "ResponseFlag", "LastModified", "ContentLength", });
+        new java.lang.String[] { "RequestType", "ResponseFlag", "LastModified", "ContentLength", "EntryNode", });
     internal_static_PhotoPayload_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_PhotoPayload_fieldAccessorTable = new
@@ -26780,7 +27280,7 @@ public final class Comm {
     internal_static_Header_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Header_descriptor,
-        new java.lang.String[] { "RoutingId", "Originator", "Tag", "Time", "PhotoHeader", "ReplyCode", "ReplyMsg", "Path", "ToNode", "Options", });
+        new java.lang.String[] { "RoutingId", "Originator", "Tag", "Time", "Ip", "Port", "PhotoHeader", "ReplyCode", "ReplyMsg", "Path", "ToNode", "Options", });
     internal_static_Payload_descriptor =
       getDescriptor().getMessageTypes().get(14);
     internal_static_Payload_fieldAccessorTable = new

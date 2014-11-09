@@ -52,7 +52,7 @@ public class ResourceUtil {
 		RoutingPath.Builder rpb = RoutingPath.newBuilder();
 		rpb.setNodeId(cfg.getNodeId());
 		rpb.setTime(System.currentTimeMillis());
-		hbldr.addPath(rpb.build());
+//		hbldr.addPath(rpb.build());
 
 		return bldr.build();
 	}

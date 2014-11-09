@@ -15,54 +15,25 @@
  */
 package poke.server.queue;
 
-import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.IOException;
 import java.lang.Thread.State;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.LinkedBlockingDeque;
-
-import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import poke.client.util.RoundRobin;
-import poke.server.Server;
-import poke.server.ServerInitializer;
-import poke.server.conf.NodeDesc;
-import poke.server.management.ManagementQueue;
+import poke.resources.ForwardResource;
+import poke.resources.JobResource;
+import poke.resources.MapperResource;
 import poke.server.managers.ElectionManager;
-import poke.server.managers.HeartbeatManager;
-import poke.server.managers.ServerManager;
 import poke.server.resources.Resource;
 import poke.server.resources.ResourceFactory;
-import poke.server.resources.ResourceUtil;
 
 import com.google.protobuf.GeneratedMessage;
-import com.lifeForce.storage.BlobStorage;
-import com.lifeForce.storage.BlobStorageProfile;
-import com.lifeForce.storage.BlobStorageService;
-import com.lifeForce.storage.BlobStorageServiceImplementation;
 
-import eye.Comm.PhotoHeader.RequestType;
-import eye.Comm.PokeStatus;
 import eye.Comm.Request;
 
 /**
@@ -93,11 +64,9 @@ public class PerChannelQueue implements ChannelQueue {
 	private InboundWorker iworker;
 
 	// not the best method to ensure uniqueness
-	private ThreadGroup tgroup = new ThreadGroup("ServerQueue-" + System.nanoTime());
+	private ThreadGroup tgroup = new ThreadGroup("ServerQueue-"
+			+ System.nanoTime());
 
-	//
-	private static int queueSize=0;
-	
 	protected PerChannelQueue(Channel channel) {
 		this.channel = channel;
 		init();
@@ -141,14 +110,16 @@ public class PerChannelQueue implements ChannelQueue {
 
 		if (iworker != null) {
 			iworker.forever = false;
-			if (iworker.getState() == State.BLOCKED || iworker.getState() == State.WAITING)
+			if (iworker.getState() == State.BLOCKED
+					|| iworker.getState() == State.WAITING)
 				iworker.interrupt();
 			iworker = null;
 		}
 
 		if (oworker != null) {
 			oworker.forever = false;
-			if (oworker.getState() == State.BLOCKED || oworker.getState() == State.WAITING)
+			if (oworker.getState() == State.BLOCKED
+					|| oworker.getState() == State.WAITING)
 				oworker.interrupt();
 			oworker = null;
 		}
@@ -197,14 +168,16 @@ public class PerChannelQueue implements ChannelQueue {
 			this.sq = sq;
 
 			if (outbound == null)
-				throw new RuntimeException("connection worker detected null queue");
+				throw new RuntimeException(
+						"connection worker detected null queue");
 		}
 
 		@Override
 		public void run() {
 			Channel conn = sq.channel;
 			if (conn == null || !conn.isOpen()) {
-				PerChannelQueue.logger.error("connection missing, no outbound communication");
+				PerChannelQueue.logger
+						.error("connection missing, no outbound communication");
 				return;
 			}
 
@@ -213,12 +186,14 @@ public class PerChannelQueue implements ChannelQueue {
 					break;
 
 				try {
+
 					// block until a message is enqueued
 					GeneratedMessage msg = sq.outbound.take();
 					if (conn.isWritable()) {
 						boolean rtn = false;
-						if (channel != null && channel.isOpen() && channel.isWritable()) {
-							ChannelFuture cf = channel.write(msg);
+						if (channel != null && channel.isOpen()
+								&& channel.isWritable()) {
+							ChannelFuture cf = channel.writeAndFlush(msg);
 
 							// blocks on write - use listener to be async
 							cf.awaitUninterruptibly();
@@ -232,7 +207,8 @@ public class PerChannelQueue implements ChannelQueue {
 				} catch (InterruptedException ie) {
 					break;
 				} catch (Exception e) {
-					PerChannelQueue.logger.error("Unexpected communcation failure", e);
+					PerChannelQueue.logger.error(
+							"Unexpected communcation failure", e);
 					break;
 				}
 			}
@@ -254,14 +230,16 @@ public class PerChannelQueue implements ChannelQueue {
 			this.sq = sq;
 
 			if (outbound == null)
-				throw new RuntimeException("connection worker detected null queue");
+				throw new RuntimeException(
+						"connection worker detected null queue");
 		}
 
 		@Override
 		public void run() {
 			Channel conn = sq.channel;
 			if (conn == null || !conn.isOpen()) {
-				PerChannelQueue.logger.error("connection missing, no inbound communication");
+				PerChannelQueue.logger
+						.error("connection missing, no inbound communication");
 				return;
 			}
 
@@ -270,83 +248,112 @@ public class PerChannelQueue implements ChannelQueue {
 					break;
 
 				try {
+
+					System.out.println("Inside PerChannel Queue");
+
 					// block until a message is enqueued
 					GeneratedMessage msg = sq.inbound.take();
 
 					// process request and enqueue response
 					if (msg instanceof Request) {
 						Request req = ((Request) msg);
-						
-						
-						
-//						if(ElectionManager.getInstance().whoIsTheLeader()!=null && ServerManager.getInstance().getNodeId() == ElectionManager.getInstance().whoIsTheLeader()  && !req.getHeader().hasReplyMsg()) {
-//						
-//							ClientManagementQueueMap.internalClientMap.put(req.getHeader().getOriginator(),sq);
-//							queueSize++;
-//							}
-//							if(req.getHeader().hasReplyMsg())
-//							{
-//								sq = ClientManagementQueueMap.internalClientMap.get(req.getHeader().getOriginator());
-//								ClientManagementQueueMap.internalClientMap.remove(req.getHeader().getOriginator());
-//								sq.enqueueResponse(req, null);
-//							}
-						
-						// do we need to route the request?
-				
-							
-							// handle it locally
-							Resource rsc = ResourceFactory.getInstance().resourceInstance(req.getHeader());
 
-						
-						/**** TO BE REMOVED START******************/
-//						File imgPath = new File("/Users/arun_malik/Downloads/arun.jpg");
-//						BufferedImage bufferedImage;
-//						WritableRaster raster;
-//						DataBufferByte data;
-//						BlobStorage blob = new BlobStorage();
-//						
-//						try {
-//							
-//							bufferedImage = ImageIO.read(imgPath);
-//							raster = bufferedImage.getRaster();
-//							data = (DataBufferByte) raster.getDataBuffer();
-//						
-//						blob.setCaption("TestCaption");
-//						blob.setContentLength(40);
-//						blob.setCreatedBy("Malik");
-//						blob.setImageData(data.getData());
-//						blob.setUuid(java.util.UUID.randomUUID().toString());
+						if (req.getHeader().getOriginator() == ElectionManager
+								.getInstance().whoIsTheLeader()
+								|| null == req.getHeader().getPhotoHeader().getEntryNode()) {
+
+							if (req.getHeader().getReplyMsg() == "response") {
+								System.out.println("inbound wrkr - hasreply");
+								sq.enqueueResponse(req, null);
+
+							}
+
+							Resource rsc = ResourceFactory.getInstance()
+									.resourceInstance(req.getHeader());
+
+							if (rsc instanceof ForwardResource) {
+								((ForwardResource) rsc).setSq(sq);
+								Request reply = rsc.process(req);
+								
+
+//								Bootstrap bootStrap = new Bootstrap();
+//								NioEventLoopGroup group = new NioEventLoopGroup();
+//								bootStrap.group(group)
+//										.channel(NioSocketChannel.class)
+//										.handler(new ChannelHandler(sq));
+//								bootStrap.option(
+//										ChannelOption.CONNECT_TIMEOUT_MILLIS,
+//										10000);
+//								bootStrap.option(ChannelOption.TCP_NODELAY,
+//										true);
+//								bootStrap.option(ChannelOption.SO_KEEPALIVE,
+//										true);
 //
-//						
-//						BlobStorageService blobStore = new BlobStorageServiceImplementation();
-//						BlobStorageProfile savedBlob = blobStore.createBlobStorage(blob);
-//						System.out.println("Saved Blob Id: "
-//								+ savedBlob.getBlobStorageId().toString());
-//						
-//						
-//						} catch (IOException e1) {
-//							 System.out.println(e1.getMessage());
-//						} catch (Exception e) {
-//							System.out.println(e.getMessage());
-//							System.out.println(e.getStackTrace());
-//						}
-						/**** TO BE REMOVED ENDS******************/
-						
-						Request reply = null;
-						if (rsc == null) {
-							logger.error("failed to obtain resource for " + req);
-							reply = ResourceUtil.buildError(req.getHeader(), PokeStatus.NORESOURCE,
-									"Request not processed");
-						} else
-							reply = rsc.process(req);
+//								System.out.println("FWD - IP "
+//										+ req.getHeader().getIp());
+//								System.out.println("FWD - PORT "
+//										+ req.getHeader().getPort());
+//
+//								SocketAddress mySocketAddress = new InetSocketAddress(
+//										reply.getHeader().getIp(), reply
+//												.getHeader().getPort());
+//								ChannelFuture futureChannel = bootStrap
+//										.connect(mySocketAddress)
+//										.syncUninterruptibly();
+//								Channel ch = futureChannel.channel();
+//								ch.writeAndFlush(reply);
+//								System.out
+//										.println("**Channel Write and Flush**");
+							}
 
-						sq.enqueueResponse(reply, null);
+							if (rsc instanceof MapperResource) {
+								((MapperResource) rsc).getSq();
+								Request reply = rsc.process(req);
+
+//								// boolean enableCompression = false;
+//								Bootstrap bootStrap = new Bootstrap();
+//								NioEventLoopGroup group = new NioEventLoopGroup();
+//								bootStrap.group(group)
+//										.channel(NioSocketChannel.class)
+//										.handler(new ChannelHandler(sq));
+//								bootStrap.option(
+//										ChannelOption.CONNECT_TIMEOUT_MILLIS,
+//										10000);
+//								bootStrap.option(ChannelOption.TCP_NODELAY,
+//										true);
+//								bootStrap.option(ChannelOption.SO_KEEPALIVE,
+//										true);
+//
+//								System.out.println("FWD - IP "
+//										+ req.getHeader().getIp());
+//								System.out.println("FWD - PORT "
+//										+ req.getHeader().getPort());
+//
+//								SocketAddress mySocketAddress = new InetSocketAddress(
+//										reply.getHeader().getIp(), reply
+//												.getHeader().getPort());
+//								ChannelFuture futureChannel = bootStrap
+//										.connect(mySocketAddress)
+//										.syncUninterruptibly();
+//								Channel ch = futureChannel.channel();
+//								ch.writeAndFlush(reply);
+//								System.out
+//										.println("**Channel Write and Flush**");
+							}
+
+							if (rsc instanceof JobResource) {
+								Request reply = rsc.process(req);
+								sq.enqueueResponse(reply, null);
+							}
+
+						}
 					}
 
 				} catch (InterruptedException ie) {
 					break;
 				} catch (Exception e) {
-					PerChannelQueue.logger.error("Unexpected processing failure", e);
+					PerChannelQueue.logger.error(
+							"Unexpected processing failure", e);
 					break;
 				}
 			}
@@ -366,6 +373,9 @@ public class PerChannelQueue implements ChannelQueue {
 
 		@Override
 		public void operationComplete(ChannelFuture future) throws Exception {
+
+			// System.out.println("=> => => Inside CloseListener" );
+			// sq.enqueueResponse(testReq, null);
 			sq.shutdown(true);
 		}
 	}

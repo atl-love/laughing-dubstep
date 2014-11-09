@@ -56,9 +56,10 @@ def buildSaveImageJob(iname, data, ownerId):
     jobId = str(int(round(time.time() * 1000)))
     r= comm_pb2.Request()
 
-    r.header.photoHeader.requestType = 1
-    r.body.photoPayload.name=iname
-    r.body.photoPayload.data = data
+    #r.header.photoHeader.requestType = 0
+    #r.body.photoPayload.name=iname
+  	# r.body.photoPayload.data = data
+   	r.body.photoPayload.uuid = "5bbe4b8e-bbfd-4493-b246-bfcd73ed38b8"
 
 
 
@@ -428,88 +429,22 @@ if __name__ == '__main__':
     # UDP_PORT = 8080
     # serverPort = getBroadcastMsg(UDP_PORT)
 
-    host = raw_input("IP:")
-    port = raw_input("Port:")
+    host = "localhost" #raw_input("IP:")
+    port = 5572 #raw_input("Port:")
 
     port = int(port)
     whoAmI = 1;
-    input = raw_input("Welcome to our MOOC client! Kindly select your desirable action:\n1.Sign up\n2.Sign in\n10.SaveImage\n")
-    if input == "1":
-        username = raw_input("email:")
-        password = raw_input("Password:")
-        fName = raw_input("First Name:")
-        lName = raw_input("Last Name:")
-        signupJob = buildSignupJob(username, password,fName, lName, 1)
-        result = sendMsg(signupJob, port, host)
-        print result.body.job_status
-        print result.header.reply_msg
-        whoAmI = result.body.job_dstatus.data[0].owner_id
+   
 
-    elif input == "10":
 
-        fh = open('picture.JPG','rb')
-        dataFile = fh.read()
-        iname="picture"
-        ##print data
-        fh.close()
-        data = base64.b64encode(dataFile)
-        saveimageJob = buildSaveImageJob(iname, data, 1)
-        result = sendMsg(saveimageJob, port, host)
-        print result.body.job_status
-        print result.header.reply_msg
+    fh = open('picture.JPG','rb')
+    dataFile = fh.read()
+    iname="picture"
+    ##print data
+    fh.close()
+    data = base64.b64encode(dataFile)
+    saveimageJob = buildSaveImageJob(iname, data, 1)
+    result = sendMsg(saveimageJob, port, host)
+    print result.body.photoPayload.uuid 
 
-        whoAmI = result.body.job_status.data[0].owner_id
-
-    elif input == "2":
-        print("Please enter your Username and Password")
-        login = False
-        while login==False:
-            username = raw_input("Username:")
-            password = raw_input("Password:")
-            signinJob = buildSigninJob(username, password, 1)
-            result = sendMsg(signinJob, port, host)
-            if result.body.job_status.status == 2:
-                login = True
-                whoAmI = result.body.job_status.data[0].owner_id
-    while True:
-        input = raw_input("\nPlease select your desirable action:\n0.Quit\n1.Get a course description\n2.List all courses being offered\n3.Ask a question\n4.See all posted questions\n5.Answer a Question\n6.See all posted answers\n")
-        if input == "1":
-            courseName = raw_input("Course Name:")
-            courseDescJob = buildCourseDescJob(courseName, whoAmI)
-            result = sendMsg(courseDescJob,  port, host)
-            if result.body.job_status.status == 2:
-                print result.body.job_status.data[0].options.value
-            else:
-    #            print result.body.job_status
-                print result.header.reply_msg
-        if input == "2":
-            listCoursesJob = buildListCourse(whoAmI)
-            result = sendMsg(listCoursesJob,  port, host)
-            print result.body.job_status.data[0].options
-        if input == "3":
-            title = raw_input("Title:")
-            description = raw_input("Description:")
-            questionJob = buildQuestionJob(title, description, "04/07/2014", whoAmI)
-            result = sendMsg(questionJob,  port, host)
-            print result.body.job_status
-        if input == "4":
-            showQuestionJob = buildShowQuestionsJob(whoAmI)
-            result = sendMsg(showQuestionJob, port, host)
-            print result.body.job_status
-        if input == "5":
-            qId = raw_input("Enter Question ID:")
-            description = raw_input("Enter your response:")
-            AnswerJob = buildAnswerJob(qId, description, whoAmI)
-            result = sendMsg(AnswerJob, port, host)
-            print result.body.job_status
-        if input == "6":
-            showAnswersJob = buildShowAnswersJob(whoAmI)
-            result = sendMsg(showAnswersJob, port, host)
-            print result.body.job_status
-        if input == "0":
-            print("Thanks for using our MOOC! See you soon ...")
-            break
-#    name_space = "competition"
-#    ownerId = 123;
-#    listcourseReq = buildListCourse(name_space, comm_pb2.JobOperation.ADDJOB, ownerId)
-#    sendMsg(listcourseReq, 5573)
+   

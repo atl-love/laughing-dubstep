@@ -81,11 +81,10 @@ public class ElectionManager implements ElectionListener {
 	/** The leader */
 	Integer leaderNode;
 
-	/**
-	 * @param leaderNode the leaderNode to set
-	 */
-	public void setLeaderNode(Integer leaderNode) {
-		this.leaderNode = leaderNode;
+	public void declareLeaderAsDead() {
+		// reset election and leader node -- triggers re-election automatically
+		this.election = null;
+		this.leaderNode = null;
 	}
 
 	public static ElectionManager initManager(ServerConf conf) {
@@ -115,8 +114,7 @@ public class ElectionManager implements ElectionListener {
 	public Integer whoIsTheLeader() {
 		return this.leaderNode;
 	}
-	
-	
+
 	/**
 	 * initiate an election from within the server - most likely scenario is the
 	 * heart beat manager detects a failure of the leader and calls this method.
@@ -132,7 +130,8 @@ public class ElectionManager implements ElectionListener {
 		LeaderElection.Builder elb = LeaderElection.newBuilder();
 		elb.setElectId(createElection().createElectionID());
 		elb.setAction(ElectAction.DECLAREELECTION);
-		elb.setDesc("Node " + conf.getNodeId() + " detects no leader. Election!");
+		elb.setDesc("Node " + conf.getNodeId()
+				+ " detects no leader. Election!");
 		elb.setCandidateId(conf.getNodeId()); // promote self
 		elb.setExpires(2 * 60 * 1000 + System.currentTimeMillis()); // 1 minute
 
@@ -140,15 +139,16 @@ public class ElectionManager implements ElectionListener {
 		// counting)
 
 		// TODO use voting int votes = conf.getNumberOfElectionVotes();
-
-		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
+		MgmtHeader.Builder mhb;
+		try{
+		mhb = MgmtHeader.newBuilder();
 		mhb.setOriginator(conf.getNodeId());
 		mhb.setTime(System.currentTimeMillis());
 
 		RoutingPath.Builder rpb = RoutingPath.newBuilder();
 		rpb.setNodeId(conf.getNodeId());
 		rpb.setTime(mhb.getTime());
-		mhb.addPath(rpb);
+		// mhb.addPath(rpb);
 
 		Management.Builder mb = Management.newBuilder();
 		mb.setHeader(mhb.build());
@@ -157,6 +157,9 @@ public class ElectionManager implements ElectionListener {
 		// now send it out to all my edges
 		logger.info("Election started by node " + conf.getNodeId());
 		ConnectionManager.broadcast(mb.build());
+		}finally{
+			mhb = null;
+		}
 	}
 
 	/**
@@ -175,7 +178,8 @@ public class ElectionManager implements ElectionListener {
 			respondToWhoIsTheLeader(mgmt);
 			return;
 		} else if (req.getAction().getNumber() == LeaderElection.ElectAction.THELEADERIS_VALUE) {
-			logger.info("Node " + conf.getNodeId() + " got an answer on who the leader is. Its Node "
+			logger.info("Node " + conf.getNodeId()
+					+ " got an answer on who the leader is. Its Node "
 					+ req.getCandidateId());
 			this.leaderNode = req.getCandidateId();
 			return;
@@ -199,7 +203,8 @@ public class ElectionManager implements ElectionListener {
 		else if (election != null)
 			rtn = election.process(mgmt);
 		else
-			logger.warn("Election event received, but no election is active, event = " + req.getAction().name());
+			logger.warn("Election event received, but no election is active, event = "
+					+ req.getAction().name());
 
 		if (rtn != null)
 			ConnectionManager.broadcast(rtn);
@@ -212,12 +217,13 @@ public class ElectionManager implements ElectionListener {
 	 */
 	public void assessCurrentState(Management mgmt) {
 		// logger.info("ElectionManager.assessCurrentState() checking elected leader status");
-
-		if (firstTime > 0 && ConnectionManager.getNumMgmtConnections() > 0) {
+		if (firstTime > 0 && ConnectionManager.getNumMgmtConnections() > 0
+				&& election == null) {
 			// give it two tries to get the leader
 			this.firstTime--;
 			askWhoIsTheLeader();
-		} else if (leaderNode == null && (election == null || !election.isElectionInprogress())) {
+		} else if (leaderNode == null
+				&& (election == null || !election.isElectionInprogress())) {
 			// if this is not an election state, we need to assess the H&S of
 			// the network's leader
 			synchronized (syncPt) {
@@ -233,7 +239,6 @@ public class ElectionManager implements ElectionListener {
 			logger.info("----> the leader is " + leaderID);
 			this.leaderNode = leaderID;
 		}
-
 		election.clear();
 	}
 
@@ -243,9 +248,11 @@ public class ElectionManager implements ElectionListener {
 			return;
 		}
 
-		logger.info("Node " + conf.getNodeId() + " is replying to " + mgmt.getHeader().getOriginator()
+		logger.info("Node " + conf.getNodeId() + " is replying to "
+				+ mgmt.getHeader().getOriginator()
 				+ "'s request who the leader is. Its Node " + this.leaderNode);
 
+		
 		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
 		mhb.setOriginator(conf.getNodeId());
 		mhb.setTime(System.currentTimeMillis());
@@ -253,7 +260,7 @@ public class ElectionManager implements ElectionListener {
 		RoutingPath.Builder rpb = RoutingPath.newBuilder();
 		rpb.setNodeId(conf.getNodeId());
 		rpb.setTime(mhb.getTime());
-		mhb.addPath(rpb);
+//		mhb.addPath(rpb);
 
 		LeaderElection.Builder elb = LeaderElection.newBuilder();
 		elb.setElectId(createElection().createElectionID());
@@ -270,37 +277,48 @@ public class ElectionManager implements ElectionListener {
 		logger.info("Election started by node " + conf.getNodeId());
 		try {
 
-			ConnectionManager.getConnection(mgmt.getHeader().getOriginator(), true).write(mb.build());
+			ConnectionManager.getConnection(mgmt.getHeader().getOriginator(),
+					true).write(mb.build());
 		} catch (Exception ex) {
 			ex.printStackTrace();
+		}finally{
+			mb = null;
 		}
 	}
 
 	private void askWhoIsTheLeader() {
 		logger.info("Node " + conf.getNodeId() + " is searching for the leader");
 
-		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
-		mhb.setOriginator(conf.getNodeId());
-		mhb.setTime(System.currentTimeMillis());
+		MgmtHeader.Builder mhb;
+		try {
 
-		RoutingPath.Builder rpb = RoutingPath.newBuilder();
-		rpb.setNodeId(conf.getNodeId());
-		rpb.setTime(mhb.getTime());
-		mhb.addPath(rpb);
+			mhb = MgmtHeader.newBuilder();
+			mhb.setOriginator(conf.getNodeId());
+			mhb.setTime(System.currentTimeMillis());
 
-		LeaderElection.Builder elb = LeaderElection.newBuilder();
-		elb.setElectId(createElection().createElectionID());
-		elb.setAction(ElectAction.WHOISTHELEADER);
-		elb.setDesc("Node " + this.leaderNode + " is asking who the leader is");
-		elb.setCandidateId(-1);
-		elb.setExpires(-1);
+			RoutingPath.Builder rpb = RoutingPath.newBuilder();
+			rpb.setNodeId(conf.getNodeId());
+			rpb.setTime(mhb.getTime());
+//			mhb.addPath(rpb);
 
-		Management.Builder mb = Management.newBuilder();
-		mb.setHeader(mhb.build());
-		mb.setElection(elb.build());
+			LeaderElection.Builder elb = LeaderElection.newBuilder();
+			elb.setElectId(createElection().createElectionID());
+			elb.setAction(ElectAction.WHOISTHELEADER);
+			elb.setDesc("Node " + this.leaderNode
+					+ " is asking who the leader is");
+			elb.setCandidateId(-1);
+			elb.setExpires(-1);
 
-		// now send it to the requester
-		ConnectionManager.broadcast(mb.build());
+			Management.Builder mb = Management.newBuilder();
+			mb.setHeader(mhb.build());
+			mb.setElection(elb.build());
+
+			// now send it to the requester
+			ConnectionManager.broadcast(mb.build());
+
+		} finally {
+			mhb = null;
+		}
 	}
 
 	private Election createElection() {
@@ -312,14 +330,16 @@ public class ElectionManager implements ElectionListener {
 				// if an election instance already existed, this would
 				// override the current election
 				try {
-					election = (Election) Beans.instantiate(this.getClass().getClassLoader(), clazz);
+					election = (Election) Beans.instantiate(this.getClass()
+							.getClassLoader(), clazz);
 					election.setNodeId(conf.getNodeId());
 					election.setListener(this);
 
 					// this sucks - bad coding here! should use configuration
 					// properties
 					if (election instanceof FloodMaxElection) {
-						logger.warn("Node " + conf.getNodeId() + " setting max hops to arbitrary value (4)");
+						logger.warn("Node " + conf.getNodeId()
+								+ " setting max hops to arbitrary value (4)");
 						((FloodMaxElection) election).setMaxHops(4);
 					}
 

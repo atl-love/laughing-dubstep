@@ -21,7 +21,7 @@
 	<classpathentry kind="lib" path="lib/hibernate-entitymanager-4.3.5.Final.jar" sourcepath="/Users/arun_malik/.m2/repository/org/hibernate/hibernate-entitymanager/4.3.5.Final/hibernate-entitymanager-4.3.5.Final-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hibernate-jpa-2.1-api-1.0.0.Final.jar" sourcepath="/Users/arun_malik/.m2/repository/org/hibernate/javax/persistence/hibernate-jpa-2.1-api/1.0.0.Final/hibernate-jpa-2.1-api-1.0.0.Final-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hibernate-validator-4.2.0.Final.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.30.jar"/>
 	<classpathentry kind="lib" path="lib/spring-data-jpa-1.7.0.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/Users/arun_malik/Documents/sjsu/cmpe275/core-netty-4.2/lib/mysql-connector-java-5.1.34-bin.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

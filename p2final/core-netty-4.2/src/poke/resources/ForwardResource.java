@@ -15,19 +15,38 @@ eR * copyright 2014, gash
  */
 package poke.resources;
 
-import java.util.List;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.handler.codec.protobuf.ProtobufDecoder;
+import io.netty.handler.codec.protobuf.ProtobufEncoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import poke.client.util.RoundRobin;
 import poke.server.conf.NodeDesc;
 import poke.server.conf.ServerConf;
+import poke.server.queue.ChannelHandler;
+import poke.server.queue.ChannelQueue;
+import poke.server.queue.PerChannelQueue;
 import poke.server.resources.Resource;
+import poke.server.resources.ResourceFactory.RoundRobin;
 import poke.server.resources.ResourceUtil;
+import eye.Comm.Header;
 import eye.Comm.PokeStatus;
 import eye.Comm.Request;
-import eye.Comm.RoutingPath;
 
 /**
  * The forward resource is used by the ResourceFactory to send requests to a
@@ -40,9 +59,24 @@ import eye.Comm.RoutingPath;
  * 
  */
 public class ForwardResource implements Resource {
-	protected static Logger logger = LoggerFactory.getLogger("server");
+	protected static Logger logger = LoggerFactory.getLogger("ForwardResource");
 
 	private ServerConf cfg;
+	private PerChannelQueue sq;
+
+	/**
+	 * @return the sq
+	 */
+	public PerChannelQueue getSq() {
+		return sq;
+	}
+
+	/**
+	 * @param sq the sq to set
+	 */
+	public void setSq(PerChannelQueue sq) {
+		this.sq = sq;
+	}
 
 	public ServerConf getCfg() {
 		return cfg;
@@ -59,47 +93,91 @@ public class ForwardResource implements Resource {
 
 	@Override
 	public Request process(Request request) {
-		//Integer nextNode = determineForwardNode(request);
-		Integer nextNode = RoundRobin.getLastUsedNode();
-		
+
+		// implementation changed to round robin
+		Integer nextNode = RoundRobin.getNextNode();
+		String nextNodeIp = null;
+		int nextNodePort = 0;
+
+		System.out.println("forward res next node : " + nextNode);
+
 		if (nextNode != null) {
-			Request fwd = ResourceUtil.buildForwardMessage(request, cfg);
-			return fwd;
+
+			// iterate over cfg and find ip & port for selected node
+			for (NodeDesc node : cfg.getAdjacent().getAdjacentNodes().values()) {
+				if (nextNode == node.getNodeId()) {
+
+				nextNodeIp=node.getHost();
+				nextNodePort=node.getPort();
+					
+					eye.Comm.Header.Builder headerBuilder = Header
+							.newBuilder(request.getHeader());
+					headerBuilder.setOriginator(cfg.getNodeId());
+//					headerBuilder.setIp(node.getHost());
+//					headerBuilder.setPort(node.getPort());
+					Request.Builder requestBuilder = Request
+							.newBuilder(request);
+					requestBuilder.setHeader(headerBuilder.build());
+					request = requestBuilder.build();
+
+				}
+			}
+
+			Request fwdRequest = ResourceUtil.buildForwardMessage(request, cfg);
+
+			Bootstrap bootStrap = new Bootstrap();
+			NioEventLoopGroup group = new NioEventLoopGroup();
+			bootStrap.group(group).channel(NioSocketChannel.class)
+					.handler(new ChannelHandler(this.sq));
+			bootStrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
+			bootStrap.option(ChannelOption.TCP_NODELAY, true);
+			bootStrap.option(ChannelOption.SO_KEEPALIVE, true);
+
+			SocketAddress mySocketAddress = new InetSocketAddress(nextNodeIp, nextNodePort);
+			ChannelFuture futureChannel = bootStrap.connect(mySocketAddress)
+					.syncUninterruptibly();
+			Channel ch = futureChannel.channel();
+			ch.writeAndFlush(fwdRequest);
+
+			return fwdRequest;
+
 		} else {
 			Request reply = null;
 			// cannot forward the message - no one to forward request to as
 			// the request has traveled all known/available edges of this node
 			String statusMsg = "Unable to forward message, no paths or have already traversed";
-			Request rtn = ResourceUtil.buildError(request.getHeader(), PokeStatus.NOREACHABLE, statusMsg);
+			Request rtn = ResourceUtil.buildError(request.getHeader(),
+					PokeStatus.NOREACHABLE, statusMsg);
 			return rtn;
 		}
 	}
 
-	/**
-	 * Find the nearest node that has not received the request.
-	 * 
-	 * TODO this should use the heartbeat to determine which node is active in
-	 * its list.
-	 * 
-	 * @param request
-	 * @return
-	 */
-	private Integer determineForwardNode(Request request) {
-		List<RoutingPath> paths = request.getHeader().getPathList();
-		if (paths == null || paths.size() == 0) {
-			// pick first nearest
-			NodeDesc nd = cfg.getAdjacent().getAdjacentNodes().values().iterator().next();
-			return nd.getNodeId();
-		} else {
-			// if this server has already seen this message return null
-			for (RoutingPath rp : paths) {
-				for (NodeDesc nd : cfg.getAdjacent().getAdjacentNodes().values()) {
-					if (nd.getNodeId() != rp.getNodeId())
-						return nd.getNodeId();
-				}
-			}
+	public class ChannelHandler extends ChannelInitializer<Channel> {
+		private ChannelQueue sq;
+
+		public ChannelHandler(ChannelQueue sq) {
+			this.sq = sq;
 		}
 
-		return null;
+		@Override
+		protected void initChannel(Channel channel) throws Exception {
+
+			ChannelPipeline pipeline = channel.pipeline();
+			pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(
+					67108864, 0, 4, 0, 4));
+			pipeline.addLast("protobufDecoder", new ProtobufDecoder(
+					eye.Comm.Request.getDefaultInstance()));
+			pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
+			pipeline.addLast("protobufEncoder", new ProtobufEncoder());
+
+			pipeline.addLast(new SimpleChannelInboundHandler<eye.Comm.Request>() {
+				protected void channelRead0(ChannelHandlerContext ctx,
+						eye.Comm.Request msg) throws Exception {
+					sq.enqueueResponse(msg, null);
+				}
+			});
+
+		}
+
 	}
 }

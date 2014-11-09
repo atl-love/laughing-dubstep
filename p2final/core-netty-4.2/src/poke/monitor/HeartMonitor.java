@@ -272,14 +272,13 @@ public class HeartMonitor {
 
 		@Override
 		public void operationComplete(ChannelFuture future) throws Exception {
-			System.out.println(" Node Down  :"+monitor.toNodeId);
+			System.out.println(" *****************Node Down  :"+monitor.toNodeId);
 			
+			// check if leader is dead - reset the leader and election object.
 			if(monitor.toNodeId == ElectionManager.getInstance().whoIsTheLeader()){
-				
-				//setting leader as null
-				ElectionManager.getInstance().setLeaderNode(null);
-				ElectionManager.getInstance().startElection();
+				ElectionManager.getInstance().declareLeaderAsDead();
 			}
+			
 			monitor.release();
 		}
 	}

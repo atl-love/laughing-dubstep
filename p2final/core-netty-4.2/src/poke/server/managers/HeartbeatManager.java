@@ -297,6 +297,6 @@ public class HeartbeatManager extends Thread {
 	}
 	
 	public boolean isNodeAlive(int nodeId){
-		return incomingHB.contains(nodeId);
+		return incomingHB.keySet().contains(nodeId);
 	}
 }
