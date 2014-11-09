@@ -134,8 +134,7 @@ public class ForwardResource implements Resource {
 			bootStrap.option(ChannelOption.SO_KEEPALIVE, true);
 
 			SocketAddress mySocketAddress = new InetSocketAddress(nextNodeIp, nextNodePort);
-			ChannelFuture futureChannel = bootStrap.connect(mySocketAddress)
-					.syncUninterruptibly();
+			ChannelFuture futureChannel = bootStrap.connect(mySocketAddress).syncUninterruptibly();
 			Channel ch = futureChannel.channel();
 			ch.writeAndFlush(fwdRequest);
 

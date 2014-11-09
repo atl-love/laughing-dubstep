@@ -49,6 +49,7 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 
 		} finally {
 			ps.close();
+			conn = null;
 		}
 		
 		return findByUuid(blob.getUuid());
@@ -76,6 +77,7 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 		}
 		finally {
 			ps.close(); 
+			conn = null;
 		}
 	}
 
@@ -110,6 +112,7 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 		} finally {
 			ps.close();
 			blob = null;
+			conn = null;
 		}
 	}
 
@@ -149,6 +152,7 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 			ps.close();
 			blob = null;
 			blobs=null;
+			conn = null;
 		}
 	}
 
@@ -175,6 +179,7 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 		}
 		finally {
 			ps.close(); 
+			conn = null;
 			
 		}
 		

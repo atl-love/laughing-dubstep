@@ -56,10 +56,9 @@ def buildSaveImageJob(iname, data, ownerId):
     jobId = str(int(round(time.time() * 1000)))
     r= comm_pb2.Request()
 
-    #r.header.photoHeader.requestType = 0
-    #r.body.photoPayload.name=iname
-  	# r.body.photoPayload.data = data
-   	r.body.photoPayload.uuid = "5bbe4b8e-bbfd-4493-b246-bfcd73ed38b8"
+    r.header.photoHeader.requestType = 1
+    r.body.photoPayload.name=iname
+    r.body.photoPayload.data = data
 
 
 
@@ -430,7 +429,7 @@ if __name__ == '__main__':
     # serverPort = getBroadcastMsg(UDP_PORT)
 
     host = "localhost" #raw_input("IP:")
-    port = 5572 #raw_input("Port:")
+    port = 5573 #raw_input("Port:")
 
     port = int(port)
     whoAmI = 1;

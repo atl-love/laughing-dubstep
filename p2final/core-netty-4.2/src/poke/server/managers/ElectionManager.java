@@ -15,10 +15,10 @@
  */
 package poke.server.managers;
 
-import masterNodeKnowerService.MasterNodeKnowerClient;
-
 import java.beans.Beans;
 import java.util.concurrent.atomic.AtomicReference;
+
+import masterNodeKnowerService.MasterNodeKnowerClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,9 +70,9 @@ import eye.Comm.RoutingPath;
 public class ElectionManager implements ElectionListener {
 	protected static Logger logger = LoggerFactory.getLogger("election");
 	protected static AtomicReference<ElectionManager> instance = new AtomicReference<ElectionManager>();
-
-	private static ServerConf conf;
 	private static MasterNodeKnowerClient mnkClient = MasterNodeKnowerClient.getClient();
+	
+	private static ServerConf conf;
 
 	// number of times we try to get the leader when a node starts up
 	private int firstTime = 2;
@@ -152,7 +152,7 @@ public class ElectionManager implements ElectionListener {
 		RoutingPath.Builder rpb = RoutingPath.newBuilder();
 		rpb.setNodeId(conf.getNodeId());
 		rpb.setTime(mhb.getTime());
-		// mhb.addPath(rpb);
+//		 mhb.addPath(rpb);
 
 		Management.Builder mb = Management.newBuilder();
 		mb.setHeader(mhb.build());
@@ -202,10 +202,12 @@ public class ElectionManager implements ElectionListener {
 
 		Management rtn = null;
 
-		if (req.getAction().getNumber() == LeaderElection.ElectAction.DECLAREELECTION_VALUE)
+		if (req.getAction().getNumber() == LeaderElection.ElectAction.DECLAREELECTION_VALUE){			
 			rtn = createElection().process(mgmt);
-		else if (election != null)
+		}
+		else if (election != null){
 			rtn = election.process(mgmt);
+		}
 		else
 			logger.warn("Election event received, but no election is active, event = "
 					+ req.getAction().name());
@@ -240,11 +242,9 @@ public class ElectionManager implements ElectionListener {
 	@Override
 	public void concludeWith(boolean success, Integer leaderID) {
 		if (success) {
-			logger.info("start election listener");
 			logger.info("----> the leader is " + leaderID);
 			this.leaderNode = leaderID;
 			mnkClient.setLeader(leaderID);
-			logger.info("end election listener");
 		}
 		election.clear();
 	}

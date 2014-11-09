@@ -21,20 +21,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.lifeForce.storage.MapperStorage;
-import com.lifeForce.storage.ReplicatedDbServiceImplementation;
-
 import poke.resources.ForwardResource;
 import poke.resources.JobResource;
 import poke.resources.MapperResource;
-import poke.server.conf.NodeDesc;
 import poke.server.conf.ServerConf;
 import poke.server.conf.ServerConf.ResourceConf;
 import poke.server.managers.ElectionManager;
 import poke.server.managers.HeartbeatManager;
 import eye.Comm.Header;
-import eye.Comm.Request;
-import eye.Comm.PhotoHeader.RequestType;
 
 /**
  * Resource factory provides how the server manages resource creation. We hide
@@ -121,7 +115,7 @@ public class ResourceFactory {
 
 					MapperResource rscMapper = (MapperResource) Beans
 							.instantiate(this.getClass().getClassLoader(),
-									cfg.getForwardingImplementation());
+									"poke.resources.MapperResource");
 					rscMapper.setCfg(cfg);
 
 					return rscMapper;
@@ -133,7 +127,7 @@ public class ResourceFactory {
 			} else {
 
 				// check if originator is my leader only than process the request 
-				if (ElectionManager.getInstance().whoIsTheLeader() ==  header.getOriginator()) {
+//				if (ElectionManager.getInstance().whoIsTheLeader() ==  header.getOriginator()) {
 					
 					// handle it locally
 					JobResource rsc = (JobResource) Beans.instantiate(this
@@ -142,8 +136,8 @@ public class ResourceFactory {
 					return rsc;
 				}
 				
-				return null;
-			}
+//				return null;
+//			}
 
 		} catch (Exception e) {
 			logger.error("unable to create resource " + rc.getClazz());
@@ -211,7 +205,7 @@ public class ResourceFactory {
 	// }
 
 	public static class RoundRobin {
-		private static Integer value = -1;
+		private static Integer value = 0;
 		private static int nextNode;
 
 		public static int getForwardingNode() {
@@ -220,7 +214,7 @@ public class ResourceFactory {
 			// check value heartbeat from heartbeat manager - wheather node is
 			// alive
 			// increment the value -- initial 0
-			value++;
+			//value++;
 
 			// get aliveNodes
 			int aliveNodes = HeartbeatManager.getInstance().getAliveNodes();
@@ -233,10 +227,12 @@ public class ResourceFactory {
 
 					RoundRobin.setNextNode(value);
 					System.out.println("roundrobin -- set node" + value);
-					return value;
+					int node  = value;
+					value++;
+					return node;
 				} else {
 					// if node is not alive -- check node
-					value = value == aliveNodes ? 0 : value++;
+					value = 0;
 				}
 			}
 		}

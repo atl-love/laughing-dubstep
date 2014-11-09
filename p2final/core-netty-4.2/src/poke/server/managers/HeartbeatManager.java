@@ -281,12 +281,15 @@ public class HeartbeatManager extends Thread {
 		}
 
 		@Override
-		public void operationComplete(ChannelFuture future) throws Exception {
-			if (outgoingHB.containsValue(heart)) {
+		public void operationComplete(ChannelFuture future) throws Exception { 
+			if (outgoingHB.containsValue(heart)) { 
 				logger.warn("HB outgoing channel closing for node '" + heart.getNodeId() + "' at " + heart.getHost());
 				outgoingHB.remove(future.channel());
-			} else if (incomingHB.containsValue(heart)) {
+			} 
+			
+			if (incomingHB.containsValue(heart)) {
 				logger.warn("HB incoming channel closing for node '" + heart.getNodeId() + "' at " + heart.getHost());
+				System.out.println(future.channel());
 				incomingHB.remove(future.channel());
 			}
 		}
@@ -297,6 +300,14 @@ public class HeartbeatManager extends Thread {
 	}
 	
 	public boolean isNodeAlive(int nodeId){
-		return incomingHB.keySet().contains(nodeId);
+
+		boolean success = false;
+		for ( HeartbeatData hb : outgoingHB.values()){
+			if(hb.getNodeId() == nodeId){
+				success = true;
+				break;
+			}
+		}
+		return success;
 	}
 }

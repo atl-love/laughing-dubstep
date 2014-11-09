@@ -43,6 +43,7 @@ public class ReplicatedDbServiceImplementation {
 
 		} finally {
 			ps.close();
+			conn = null;
 		} 
 	}
 	
@@ -73,6 +74,7 @@ public class ReplicatedDbServiceImplementation {
 		} finally {
 			ps.close();
 			mapper = null;
+			conn = null;
 		}
 	}
 

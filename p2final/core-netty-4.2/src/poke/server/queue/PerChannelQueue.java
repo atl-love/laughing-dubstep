@@ -258,9 +258,9 @@ public class PerChannelQueue implements ChannelQueue {
 					if (msg instanceof Request) {
 						Request req = ((Request) msg);
 
-						if (req.getHeader().getOriginator() == ElectionManager
-								.getInstance().whoIsTheLeader()
-								|| null == req.getHeader().getPhotoHeader().getEntryNode()) {
+//						if (req.getHeader().getOriginator() == ElectionManager
+//								.getInstance().whoIsTheLeader()
+//								|| null == req.getHeader().getPhotoHeader().getEntryNode()) {
 
 							if (req.getHeader().getReplyMsg() == "response") {
 								System.out.println("inbound wrkr - hasreply");
@@ -347,7 +347,7 @@ public class PerChannelQueue implements ChannelQueue {
 							}
 
 						}
-					}
+//					}
 
 				} catch (InterruptedException ie) {
 					break;
