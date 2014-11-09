@@ -33,6 +33,7 @@ public class ProxyFrontendHandler extends ChannelInboundHandlerAdapter {
     private volatile Channel outboundChannel;
 
     public ProxyFrontendHandler(Node node) {
+    	System.out.println(this);
         this.node = node;
     }
 

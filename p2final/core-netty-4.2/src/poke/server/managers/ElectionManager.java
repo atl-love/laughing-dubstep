@@ -15,6 +15,8 @@
  */
 package poke.server.managers;
 
+import masterNodeKnowerService.MasterNodeKnowerClient;
+
 import java.beans.Beans;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -70,6 +72,7 @@ public class ElectionManager implements ElectionListener {
 	protected static AtomicReference<ElectionManager> instance = new AtomicReference<ElectionManager>();
 
 	private static ServerConf conf;
+	private static MasterNodeKnowerClient mnkClient = MasterNodeKnowerClient.getClient();
 
 	// number of times we try to get the leader when a node starts up
 	private int firstTime = 2;
@@ -90,6 +93,7 @@ public class ElectionManager implements ElectionListener {
 	public static ElectionManager initManager(ServerConf conf) {
 		ElectionManager.conf = conf;
 		instance.compareAndSet(null, new ElectionManager());
+		mnkClient.init(conf);
 		return instance.get();
 	}
 
@@ -236,8 +240,11 @@ public class ElectionManager implements ElectionListener {
 	@Override
 	public void concludeWith(boolean success, Integer leaderID) {
 		if (success) {
+			logger.info("start election listener");
 			logger.info("----> the leader is " + leaderID);
 			this.leaderNode = leaderID;
+			mnkClient.setLeader(leaderID);
+			logger.info("end election listener");
 		}
 		election.clear();
 	}
