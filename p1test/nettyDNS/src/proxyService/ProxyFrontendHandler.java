@@ -33,7 +33,6 @@ public class ProxyFrontendHandler extends ChannelInboundHandlerAdapter {
     private volatile Channel outboundChannel;
 
     public ProxyFrontendHandler(Node node) {
-    	System.out.println(this);
         this.node = node;
     }
 
@@ -48,6 +47,7 @@ public class ProxyFrontendHandler extends ChannelInboundHandlerAdapter {
          .handler(new ProxyBackendHandler(inboundChannel))
          .option(ChannelOption.AUTO_READ, false);
         ChannelFuture f = b.connect(node.getIp(), node.getPort());
+        System.out.println(this + " tunneling traffic to " + node.getIp() + ":" + node.getPort());
         outboundChannel = f.channel();
         f.addListener(new ChannelFutureListener() {
             @Override
