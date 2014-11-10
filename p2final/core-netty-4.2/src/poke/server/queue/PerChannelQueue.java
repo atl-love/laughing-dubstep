@@ -34,6 +34,7 @@ import poke.server.resources.ResourceFactory;
 
 import com.google.protobuf.GeneratedMessage;
 
+import eye.Comm.PhotoHeader.ResponseFlag;
 import eye.Comm.Request;
 
 /**
@@ -62,6 +63,8 @@ public class PerChannelQueue implements ChannelQueue {
 	// This implementation uses a fixed number of threads per channel
 	private OutboundWorker oworker;
 	private InboundWorker iworker;
+	private final String FORWARD = "forward";
+	private final String RESPONSE = "response";
 
 	// not the best method to ensure uniqueness
 	private ThreadGroup tgroup = new ThreadGroup("ServerQueue-"
@@ -248,106 +251,89 @@ public class PerChannelQueue implements ChannelQueue {
 					break;
 
 				try {
-
-					System.out.println("Inside PerChannel Queue");
-
+					System.out.println("--------------------------------->>>>> per channel queue ");
 					// block until a message is enqueued
 					GeneratedMessage msg = sq.inbound.take();
 
+					System.out.println("-------------------------->>>>> take");
+					
 					// process request and enqueue response
 					if (msg instanceof Request) {
 						Request req = ((Request) msg);
 
-//						if (req.getHeader().getOriginator() == ElectionManager
-//								.getInstance().whoIsTheLeader()
-//								|| null == req.getHeader().getPhotoHeader().getEntryNode()) {
-
-							if (req.getHeader().getReplyMsg() == "response") {
-								System.out.println("inbound wrkr - hasreply");
-								sq.enqueueResponse(req, null);
-
-							}
+						// if leader and entryNode - (flag - can be changed) -check request is new  
+						if(ElectionManager.getInstance().whoIsTheLeader()!=null //&& ServerManager.getInstance().getNodeId() == ElectionManager.getInstance().whoIsTheLeader()  
+								&& !req.getHeader().hasReplyMsg()) {
+								//||req.getHeader().getPhotoHeader().hasEntryNode() ) {
 
 							Resource rsc = ResourceFactory.getInstance()
+									
 									.resourceInstance(req.getHeader());
-
-							if (rsc instanceof ForwardResource) {
-								((ForwardResource) rsc).setSq(sq);
-								Request reply = rsc.process(req);
-								
-
-//								Bootstrap bootStrap = new Bootstrap();
-//								NioEventLoopGroup group = new NioEventLoopGroup();
-//								bootStrap.group(group)
-//										.channel(NioSocketChannel.class)
-//										.handler(new ChannelHandler(sq));
-//								bootStrap.option(
-//										ChannelOption.CONNECT_TIMEOUT_MILLIS,
-//										10000);
-//								bootStrap.option(ChannelOption.TCP_NODELAY,
-//										true);
-//								bootStrap.option(ChannelOption.SO_KEEPALIVE,
-//										true);
-//
-//								System.out.println("FWD - IP "
-//										+ req.getHeader().getIp());
-//								System.out.println("FWD - PORT "
-//										+ req.getHeader().getPort());
-//
-//								SocketAddress mySocketAddress = new InetSocketAddress(
-//										reply.getHeader().getIp(), reply
-//												.getHeader().getPort());
-//								ChannelFuture futureChannel = bootStrap
-//										.connect(mySocketAddress)
-//										.syncUninterruptibly();
-//								Channel ch = futureChannel.channel();
-//								ch.writeAndFlush(reply);
-//								System.out
-//										.println("**Channel Write and Flush**");
-							}
-
-							if (rsc instanceof MapperResource) {
-								((MapperResource) rsc).getSq();
-								Request reply = rsc.process(req);
-
-//								// boolean enableCompression = false;
-//								Bootstrap bootStrap = new Bootstrap();
-//								NioEventLoopGroup group = new NioEventLoopGroup();
-//								bootStrap.group(group)
-//										.channel(NioSocketChannel.class)
-//										.handler(new ChannelHandler(sq));
-//								bootStrap.option(
-//										ChannelOption.CONNECT_TIMEOUT_MILLIS,
-//										10000);
-//								bootStrap.option(ChannelOption.TCP_NODELAY,
-//										true);
-//								bootStrap.option(ChannelOption.SO_KEEPALIVE,
-//										true);
-//
-//								System.out.println("FWD - IP "
-//										+ req.getHeader().getIp());
-//								System.out.println("FWD - PORT "
-//										+ req.getHeader().getPort());
-//
-//								SocketAddress mySocketAddress = new InetSocketAddress(
-//										reply.getHeader().getIp(), reply
-//												.getHeader().getPort());
-//								ChannelFuture futureChannel = bootStrap
-//										.connect(mySocketAddress)
-//										.syncUninterruptibly();
-//								Channel ch = futureChannel.channel();
-//								ch.writeAndFlush(reply);
-//								System.out
-//										.println("**Channel Write and Flush**");
-							}
-
+							
+							// if job resource process locally
 							if (rsc instanceof JobResource) {
 								Request reply = rsc.process(req);
 								sq.enqueueResponse(reply, null);
 							}
+							
+							// if forward resource - forward it
+							if (rsc instanceof ForwardResource) {
+								((ForwardResource) rsc).setSq(sq);
+								 rsc.process(req);
+							}
 
+							// if mapper resource - mapper get mapping from mapping db to get node location where image is stored
+							if (rsc instanceof MapperResource) {
+								((MapperResource) rsc).getSq();
+								Request reply = rsc.process(req);
+								
+								// if mapper found uuid in map and header has node location where image is store - call Forward Resource
+								if(reply.getHeader().getReplyMsg().equals(FORWARD) && reply.getHeader().getPhotoHeader().getResponseFlag() == ResponseFlag.success){
+									ForwardResource fwdrsc = new ForwardResource();
+									fwdrsc.setSq(sq);
+									fwdrsc.process(reply);
+									
+//									((ForwardResource) rsc).setSq(sq);
+//									rsc.process(reply);
+								}
+								
+								// if mapper found uuid in map and image is stored in local - call Job Resource
+								if(reply.getHeader().getReplyMsg().equals(RESPONSE) && reply.getHeader().getPhotoHeader().getResponseFlag() == ResponseFlag.success)
+								{
+									((JobResource) rsc).process(req);
+									sq.enqueueResponse(reply, null);
+								}
+								
+								//if mapper didnt found mapping of image and node response failure to client
+								if(reply.getHeader().getPhotoHeader().getResponseFlag() == ResponseFlag.failure){
+									sq.enqueueResponse(reply, null);
+								}
+								
+							}
+
+						}else{
+							// secondary nodes
+							
+							System.out.println("---------------> inside secondary ");
+							System.out.println("---> originator : "+req.getHeader().getOriginator());
+							System.out.println("---> leader : "+ElectionManager.getInstance().whoIsTheLeader() );
+							System.out.println("---> reply msg : "+req.getHeader().getReplyMsg());
+							
+							
+							if(req.getHeader().getOriginator() == ElectionManager.getInstance().whoIsTheLeader() && req.getHeader().getReplyMsg().equals(FORWARD)){
+								
+								Resource rsc = ResourceFactory.getInstance()
+										
+										.resourceInstance(req.getHeader());
+								
+								// if job resource process locally
+								if (rsc instanceof JobResource) {
+									Request reply = rsc.process(req);
+									sq.enqueueResponse(reply, null);
+								}
+							}
 						}
-//					}
+					}
 
 				} catch (InterruptedException ie) {
 					break;

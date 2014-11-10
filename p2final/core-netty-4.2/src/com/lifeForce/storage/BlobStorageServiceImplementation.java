@@ -9,22 +9,11 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 	Connection conn = null;
 	Statement stmt = null;
 
-	public BlobStorageServiceImplementation()  {
-		try {
-			
-			Class.forName(DbConfigurations.getJdbcDriver());
-			conn = DriverManager.getConnection(com.lifeForce.storage.DbConfigurations.getLocalDbUrl(), com.lifeForce.storage.DbConfigurations.getLocalDbUser(), com.lifeForce.storage.DbConfigurations.getLocalDbPass());
-			
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-	}
 
 	public BlobStorageProfile createBlobStorage(BlobStorage blob)
 			throws Exception {
+		
+		conn = getConnection();
 
 		stmt = conn.createStatement();
 		PreparedStatement ps = null;
@@ -51,14 +40,15 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 			ps.close();
 			conn = null;
 		}
-		
+
 		return findByUuid(blob.getUuid());
 	}
 
 	public Boolean deleteBlobStorage(Long blobStorageId) throws Exception {
 
-		PreparedStatement ps = null; 
+		PreparedStatement ps = null;
 		Boolean success = false;
+		conn = getConnection();
 		
 		try {
 
@@ -70,13 +60,12 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 			ps.executeQuery();
 			success = true;
 			return success;
-			
-		}catch(Exception ex){
-			success=false;
+
+		} catch (Exception ex) {
+			success = false;
 			return success;
-		}
-		finally {
-			ps.close(); 
+		} finally {
+			ps.close();
 			conn = null;
 		}
 	}
@@ -85,7 +74,8 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 
 		PreparedStatement ps = null;
 		BlobStorage blob = null;
-
+		conn = getConnection();
+		
 		try {
 
 			String sqlSelect = "SELECT * FROM blobStorage where blobStorage.uuid = ?;";
@@ -118,10 +108,11 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 
 	public List<BlobStorageProfile> findByCreatedBy(String createdBy)
 			throws Exception {
-		 
+
 		PreparedStatement ps = null;
 		BlobStorage blob = null;
 		List<BlobStorageProfile> blobs = new ArrayList<BlobStorageProfile>();
+		conn = getConnection();
 
 		try {
 
@@ -143,7 +134,7 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 				blob.setCreatedBy(rs.getString("lastModifiedBy"));
 				blob.setCreatedDate(rs.getDate("createdDate"));
 				blob.setLastModifiedDate(rs.getDate("lastModifiedDate"));
-				
+
 				blobs.add(new BlobStorageProfile(blob));
 			}
 
@@ -151,38 +142,58 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 		} finally {
 			ps.close();
 			blob = null;
-			blobs=null;
+			blobs = null;
 			conn = null;
 		}
 	}
 
 	@Override
 	public Boolean deleteBlobStorageByUuid(String uuid) throws Exception {
-		PreparedStatement ps = null; 
+		PreparedStatement ps = null;
 		Boolean success = false;
+		conn = getConnection();
 
 		try {
 
-			String sql = "DELETE FROM blobStorage where blobStorage.uuid = ?;";
+			String sql = "DELETE FROM blobStorage where blobStorage.uuid = ?";
 
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, uuid);
 
-			 ps.executeQuery();
-			
+			ps.executeQuery();
+
 			success = true;
 			return success;
-			
-		}catch(Exception ex){
+
+		} catch (Exception ex) {
 			success = false;
 			return success;
-		}
-		finally {
-			ps.close(); 
+		} finally {
+			ps.close();
 			conn = null;
-			
+
 		}
+
+	}
+	
+	private Connection getConnection(){
 		
+		Connection localConn=null;
+		try {
+
+			Class.forName(DbConfigurations.getJdbcDriver());
+			 localConn = DriverManager.getConnection(
+					com.lifeForce.storage.DbConfigurations.getLocalDbUrl(),
+					com.lifeForce.storage.DbConfigurations.getLocalDbUser(),
+					com.lifeForce.storage.DbConfigurations.getLocalDbPass());
+
+			return localConn;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return localConn;
 	}
 
 }

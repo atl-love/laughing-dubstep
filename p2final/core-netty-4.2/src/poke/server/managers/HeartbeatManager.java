@@ -296,7 +296,7 @@ public class HeartbeatManager extends Thread {
 	}
 	
 	public Integer getAliveNodes(){
-		return incomingHB.size();
+		return outgoingHB.size();
 	}
 	
 	public boolean isNodeAlive(int nodeId){

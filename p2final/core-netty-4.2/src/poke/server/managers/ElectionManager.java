@@ -18,8 +18,6 @@ package poke.server.managers;
 import java.beans.Beans;
 import java.util.concurrent.atomic.AtomicReference;
 
-import masterNodeKnowerService.MasterNodeKnowerClient;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +68,7 @@ import eye.Comm.RoutingPath;
 public class ElectionManager implements ElectionListener {
 	protected static Logger logger = LoggerFactory.getLogger("election");
 	protected static AtomicReference<ElectionManager> instance = new AtomicReference<ElectionManager>();
-	private static MasterNodeKnowerClient mnkClient = MasterNodeKnowerClient.getClient();
+	//private static MasterNodeKnowerClient mnkClient = MasterNodeKnowerClient.getClient();
 	
 	private static ServerConf conf;
 
@@ -93,7 +91,7 @@ public class ElectionManager implements ElectionListener {
 	public static ElectionManager initManager(ServerConf conf) {
 		ElectionManager.conf = conf;
 		instance.compareAndSet(null, new ElectionManager());
-		mnkClient.init(conf);
+		//mnkClient.init(conf);
 		return instance.get();
 	}
 
@@ -207,6 +205,7 @@ public class ElectionManager implements ElectionListener {
 		}
 		else if (election != null){
 			rtn = election.process(mgmt);
+			election.clear();
 		}
 		else
 			logger.warn("Election event received, but no election is active, event = "
@@ -244,7 +243,7 @@ public class ElectionManager implements ElectionListener {
 		if (success) {
 			logger.info("----> the leader is " + leaderID);
 			this.leaderNode = leaderID;
-			mnkClient.setLeader(leaderID);
+			//mnkClient.setLeader(leaderID);
 		}
 		election.clear();
 	}

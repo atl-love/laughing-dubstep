@@ -28,6 +28,8 @@ import com.lifeForce.storage.ReplicatedDbServiceImplementation;
 
 import eye.Comm.Header;
 import eye.Comm.Payload;
+import eye.Comm.PhotoHeader;
+import eye.Comm.PhotoHeader.ResponseFlag;
 import eye.Comm.PhotoPayload;
 import eye.Comm.PhotoPayload.Builder;
 import eye.Comm.Request;
@@ -74,23 +76,58 @@ public class JobResource implements Resource {
 
 					try {
 
+						// create blob in db
 						blobService.createBlobStorage(blob);
+
+						// create blob in mapper db
 						mapperService.createMapperStorage(mapper);
 
+						// create a body - photo payload builder from request
 						Builder photoPayLoadBuilder = PhotoPayload
 								.newBuilder(request.getBody().getPhotoPayload());
+
+						// create a body - payload builder from request
 						eye.Comm.Payload.Builder payLoadBuilder = Payload
 								.newBuilder(request.getBody());
+
+						// create the request builder
 						Request.Builder requestBuilder = Request
 								.newBuilder(request);
+
+						// create the photo header builder
+						eye.Comm.PhotoHeader.Builder photoHeaderBuilder = PhotoHeader
+								.newBuilder(request.getHeader()
+										.getPhotoHeader());
+
+						// create the header builder
 						eye.Comm.Header.Builder headerBuilder = Header
 								.newBuilder(request.getHeader());
+
+						// set reply message as response in the header
 						headerBuilder.setReplyMsg(RESPONSE);
+
+						// set uuid in photopayloadbuilder
 						photoPayLoadBuilder.setUuid(uuid);
+
+						// set image
 						payLoadBuilder.setPhotoPayload(photoPayLoadBuilder
 								.build());
+
+						// set response as success in photoheader
+						photoHeaderBuilder
+								.setResponseFlag(ResponseFlag.success);
+
+						// build photoheader builder
+						headerBuilder
+								.setPhotoHeader(photoHeaderBuilder.build());
+
+						// build header
 						requestBuilder.setHeader(headerBuilder.build());
+
+						// build body
 						requestBuilder.setBody(payLoadBuilder.build());
+
+						// build request
 						request = requestBuilder.build();
 
 						return request;
@@ -100,34 +137,70 @@ public class JobResource implements Resource {
 						e.printStackTrace();
 					}
 
+					break;
+
 				case read:
 					try {
-						
+
 						BlobStorageProfile blobFound = blobService
 								.findByUuid(request.getBody().getPhotoPayload()
 										.getUuid());
 
+						// create a body - photo payload builder from request
 						Builder photoPayLoadBuilder = PhotoPayload
 								.newBuilder(request.getBody().getPhotoPayload());
+
+						// create a body - payload builder from request
 						eye.Comm.Payload.Builder payLoadBuilder = Payload
 								.newBuilder(request.getBody());
+
+						// create the request builder
 						Request.Builder requestBuilder = Request
 								.newBuilder(request);
+
+						// create the photo header builder
+						eye.Comm.PhotoHeader.Builder photoHeaderBuilder = PhotoHeader
+								.newBuilder(request.getHeader()
+										.getPhotoHeader());
+
+						// create the header builder
 						eye.Comm.Header.Builder headerBuilder = Header
 								.newBuilder(request.getHeader());
+
+						// set reply message as response in the header
 						headerBuilder.setReplyMsg(RESPONSE);
+
+						// if image found
 						if (blobFound != null) {
+							// set uuid, caption, image data
 							photoPayLoadBuilder.setUuid(blobFound.getUuid());
 							photoPayLoadBuilder.setName(blobFound.getCaption());
 							photoPayLoadBuilder.setData(ByteString
 									.copyFrom(blobFound.getImageData()));
+
+							// set response as success in photoheader
+							photoHeaderBuilder
+									.setResponseFlag(ResponseFlag.success);
+
 						} else {
+							// if image not found
 							photoPayLoadBuilder.setName("Image Not Found");
+
+							// set reponse as failure in photo header
+							photoHeaderBuilder
+									.setResponseFlag(ResponseFlag.failure);
 						}
+						// build photoheader builder
+						headerBuilder
+								.setPhotoHeader(photoHeaderBuilder.build());
+						// build payload
 						payLoadBuilder.setPhotoPayload(photoPayLoadBuilder
 								.build());
+						// build header
 						requestBuilder.setHeader(headerBuilder.build());
+						// build body
 						requestBuilder.setBody(payLoadBuilder.build());
+						// build request
 						request = requestBuilder.build();
 
 						return request;
@@ -137,17 +210,66 @@ public class JobResource implements Resource {
 						e.printStackTrace();
 					}
 
-				case delete:
-					try {
+					break;
 
-						Boolean success = blobService
-								.deleteBlobStorageByUuid(request.getBody()
-										.getPhotoPayload().getUuid());
+				case delete:
+
+					Boolean success = false;
+
+					// create a body - photo payload builder from request
+					Builder photoPayLoadBuilder = PhotoPayload
+							.newBuilder(request.getBody().getPhotoPayload());
+
+					// create a body - payload builder from request
+					eye.Comm.Payload.Builder payLoadBuilder = Payload
+							.newBuilder(request.getBody());
+
+					// create the request builder
+					Request.Builder requestBuilder = Request
+							.newBuilder(request);
+
+					// create the photo header builder
+					eye.Comm.PhotoHeader.Builder photoHeaderBuilder = PhotoHeader
+							.newBuilder(request.getHeader().getPhotoHeader());
+
+					// create the header builder
+					eye.Comm.Header.Builder headerBuilder = Header
+							.newBuilder(request.getHeader());
+
+					// set reply message as response in the header
+					headerBuilder.setReplyMsg(RESPONSE);
+
+					try {
+						blobService.deleteBlobStorageByUuid(request.getBody()
+								.getPhotoPayload().getUuid());
+
+						mapperService.deleteMapper(request.getBody()
+								.getPhotoPayload().getUuid());
+
+						// set response as success in photoheader
+						photoHeaderBuilder
+								.setResponseFlag(ResponseFlag.success);
 
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
+						photoHeaderBuilder
+								.setResponseFlag(ResponseFlag.failure);
+
 						e.printStackTrace();
 					}
+
+					// build photoheader builder
+					headerBuilder.setPhotoHeader(photoHeaderBuilder.build());
+					// build payload
+					payLoadBuilder.setPhotoPayload(photoPayLoadBuilder.build());
+					// build header
+					requestBuilder.setHeader(headerBuilder.build());
+					// build body
+					requestBuilder.setBody(payLoadBuilder.build());
+					// build request
+					request = requestBuilder.build();
+
+					return request;
 
 				default:
 					break;

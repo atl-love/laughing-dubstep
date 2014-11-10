@@ -149,7 +149,8 @@ public class HeartMonitor {
 				// Make the connection attempt.
 				channel = b.connect(host, port).syncUninterruptibly();
 				channel.awaitUninterruptibly(5000l);
-				channel.channel().closeFuture().addListener(new MonitorClosedListener(this));
+				channel.channel().closeFuture()
+						.addListener(new MonitorClosedListener(this));
 
 				if (N == Integer.MAX_VALUE)
 					N = 1;
@@ -172,7 +173,8 @@ public class HeartMonitor {
 		if (channel != null && channel.isDone() && channel.isSuccess())
 			return channel.channel();
 		else
-			throw new RuntimeException("Not able to establish connection to server");
+			throw new RuntimeException(
+					"Not able to establish connection to server");
 	}
 
 	public boolean isConnected() {
@@ -272,13 +274,15 @@ public class HeartMonitor {
 
 		@Override
 		public void operationComplete(ChannelFuture future) throws Exception {
-			System.out.println(" *****************Node Down  :"+monitor.toNodeId);
-			
+			System.out.println(" *****************Node Down  :"
+					+ monitor.toNodeId);
+
 			// check if leader is dead - reset the leader and election object.
-			if(monitor.toNodeId == ElectionManager.getInstance().whoIsTheLeader()){
+			if (monitor.toNodeId == ElectionManager.getInstance()
+					.whoIsTheLeader()) {
 				ElectionManager.getInstance().declareLeaderAsDead();
 			}
-			
+
 			monitor.release();
 		}
 	}

@@ -23,6 +23,7 @@ import poke.server.managers.ElectionManager;
 import poke.server.managers.HeartbeatManager;
 import poke.server.managers.JobManager;
 import poke.server.managers.NetworkManager;
+import eye.Comm.LeaderElection;
 import eye.Comm.Management;
 
 /**
@@ -103,7 +104,8 @@ public class InboundMgmtWorker extends Thread {
 					 */
 					ElectionManager.getInstance().assessCurrentState(mgmt);
 
-				} else if (mgmt.hasElection()) {
+				} else if (mgmt.hasElection() ) {
+				    System.out.println("*****Inside has election, action is :"+mgmt.getElection().getAction());
 					ElectionManager.getInstance().processRequest(mgmt);
 				} else if (mgmt.hasGraph()) {
 					NetworkManager.getInstance().processRequest(mgmt,
@@ -112,7 +114,7 @@ public class InboundMgmtWorker extends Thread {
 					JobManager.getInstance().processRequest(mgmt);
 				} else if (mgmt.hasJobPropose()) {
 					JobManager.getInstance().processRequest(mgmt);
-				} else
+				}  else
 					logger.error("Unknown management message");
 
 			} catch (InterruptedException ie) {

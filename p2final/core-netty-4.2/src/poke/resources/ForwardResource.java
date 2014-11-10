@@ -61,6 +61,7 @@ import eye.Comm.Request;
 public class ForwardResource implements Resource {
 	protected static Logger logger = LoggerFactory.getLogger("ForwardResource");
 
+	private final String FORWARD = "forward";
 	private ServerConf cfg;
 	private PerChannelQueue sq;
 
@@ -72,7 +73,8 @@ public class ForwardResource implements Resource {
 	}
 
 	/**
-	 * @param sq the sq to set
+	 * @param sq
+	 *            the sq to set
 	 */
 	public void setSq(PerChannelQueue sq) {
 		this.sq = sq;
@@ -91,39 +93,63 @@ public class ForwardResource implements Resource {
 		this.cfg = cfg;
 	}
 
+	String nextNodeIp = null;
+	int nextNodePort = 0;
+
 	@Override
 	public Request process(Request request) {
 
-		// implementation changed to round robin
-		Integer nextNode = RoundRobin.getNextNode();
-		String nextNodeIp = null;
-		int nextNodePort = 0;
+		if (request != null && request.getBody().hasPhotoPayload()) {
 
-		System.out.println("forward res next node : " + nextNode);
+			eye.Comm.Header.Builder headerBuilder = Header
+					.newBuilder(request.getHeader());
+			
+			
+			switch (request.getHeader().getPhotoHeader().getRequestType()) {
+			
+			case write:
+				// implementation changed to round robin
+				Integer nextNode = RoundRobin.getNextNode();
 
-		if (nextNode != null) {
+				if (nextNode != null) {
 
-			// iterate over cfg and find ip & port for selected node
-			for (NodeDesc node : cfg.getAdjacent().getAdjacentNodes().values()) {
-				if (nextNode == node.getNodeId()) {
+					// iterate over cfg and find ip & port for selected node
+					for (NodeDesc node : cfg.getAdjacent().getAdjacentNodes()
+							.values()) {
+						if (nextNode == node.getNodeId()) {
 
-				nextNodeIp=node.getHost();
-				nextNodePort=node.getPort();
-					
-					eye.Comm.Header.Builder headerBuilder = Header
-							.newBuilder(request.getHeader());
-					headerBuilder.setOriginator(cfg.getNodeId());
-//					headerBuilder.setIp(node.getHost());
-//					headerBuilder.setPort(node.getPort());
-					Request.Builder requestBuilder = Request
-							.newBuilder(request);
-					requestBuilder.setHeader(headerBuilder.build());
-					request = requestBuilder.build();
+							nextNodeIp = node.getHost();
+							nextNodePort = node.getPort();
+							break;
+						}
+					}
+				} 
+				
+				headerBuilder.setOriginator(cfg.getNodeId()); 
+				break;
+			case delete:
+			case read:
+				nextNodeIp = request.getHeader().getIp();
+				nextNodePort = request.getHeader().getPort();
+				
+				// in read we set originator in mapper and not in forward - because fwd resource for read is iniitalzed in per channel queue -in mapper 
+				headerBuilder.setOriginator(request.getHeader().getOriginator()); 
+				break;
+			default:
+				break;
 
-				}
 			}
+			
+			// set reply message as response in the header
+			headerBuilder.setReplyMsg(FORWARD);
+			
+			Request.Builder requestBuilder = Request
+					.newBuilder(request);
+			requestBuilder.setHeader(headerBuilder.build());
+			//request = requestBuilder.build();
 
-			Request fwdRequest = ResourceUtil.buildForwardMessage(request, cfg);
+			Request fwdRequest = requestBuilder.build();
+			//Request fwdRequest = ResourceUtil.buildForwardMessage(request, cfg);
 
 			Bootstrap bootStrap = new Bootstrap();
 			NioEventLoopGroup group = new NioEventLoopGroup();
@@ -133,22 +159,17 @@ public class ForwardResource implements Resource {
 			bootStrap.option(ChannelOption.TCP_NODELAY, true);
 			bootStrap.option(ChannelOption.SO_KEEPALIVE, true);
 
-			SocketAddress mySocketAddress = new InetSocketAddress(nextNodeIp, nextNodePort);
+			SocketAddress mySocketAddress = new InetSocketAddress(nextNodeIp,
+					nextNodePort);
 			ChannelFuture futureChannel = bootStrap.connect(mySocketAddress).syncUninterruptibly();
 			Channel ch = futureChannel.channel();
+			futureChannel.awaitUninterruptibly();
 			ch.writeAndFlush(fwdRequest);
 
 			return fwdRequest;
-
-		} else {
-			Request reply = null;
-			// cannot forward the message - no one to forward request to as
-			// the request has traveled all known/available edges of this node
-			String statusMsg = "Unable to forward message, no paths or have already traversed";
-			Request rtn = ResourceUtil.buildError(request.getHeader(),
-					PokeStatus.NOREACHABLE, statusMsg);
-			return rtn;
 		}
+		return request;
+
 	}
 
 	public class ChannelHandler extends ChannelInitializer<Channel> {
@@ -172,6 +193,7 @@ public class ForwardResource implements Resource {
 			pipeline.addLast(new SimpleChannelInboundHandler<eye.Comm.Request>() {
 				protected void channelRead0(ChannelHandlerContext ctx,
 						eye.Comm.Request msg) throws Exception {
+					System.out.println("---------------->inside channel handler");
 					sq.enqueueResponse(msg, null);
 				}
 			});

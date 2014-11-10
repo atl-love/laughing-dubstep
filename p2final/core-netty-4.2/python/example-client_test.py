@@ -429,7 +429,7 @@ if __name__ == '__main__':
     # serverPort = getBroadcastMsg(UDP_PORT)
 
     host = "localhost" #raw_input("IP:")
-    port = 5573 #raw_input("Port:")
+    port = 5572	 #raw_input("Port:")
 
     port = int(port)
     whoAmI = 1;

@@ -78,6 +78,32 @@ public class ReplicatedDbServiceImplementation {
 		}
 	}
 
+	public Boolean deleteMapper(String uuid) throws Exception {
+
+		PreparedStatement ps = null;
+		Boolean success = false;
+		conn = getDbConnection();
+		
+		try {
+
+			String sql = "DELETE FROM mapper where mapper.uuid = ?";
+
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, uuid);
+
+			ps.executeQuery();
+			success = true;
+			return success;
+
+		} catch (Exception ex) {
+			success = false;
+			return success;
+		} finally {
+			ps.close();
+			conn = null;
+		}
+	}
+	
 	public Connection getDbConnection() {
 		
 		try {

@@ -111,6 +111,7 @@ public class ResourceFactory {
 
 					return rsc;
 
+				case delete:
 				case read:
 
 					MapperResource rscMapper = (MapperResource) Beans
@@ -126,18 +127,20 @@ public class ResourceFactory {
 				}
 			} else {
 
-				// check if originator is my leader only than process the request 
-//				if (ElectionManager.getInstance().whoIsTheLeader() ==  header.getOriginator()) {
-					
-					// handle it locally
-					JobResource rsc = (JobResource) Beans.instantiate(this
-							.getClass().getClassLoader(), rc.getClazz());
-					rsc.setCfg(cfg);
-					return rsc;
-				}
-				
-//				return null;
-//			}
+				// check if originator is my leader only than process the
+				// request
+				// if (ElectionManager.getInstance().whoIsTheLeader() ==
+				// header.getOriginator()) {
+
+				// handle it locally
+				JobResource rsc = (JobResource) Beans.instantiate(this
+						.getClass().getClassLoader(), rc.getClazz());
+				rsc.setCfg(cfg);
+				return rsc;
+			}
+
+			// return null;
+			// }
 
 		} catch (Exception e) {
 			logger.error("unable to create resource " + rc.getClazz());
@@ -214,7 +217,7 @@ public class ResourceFactory {
 			// check value heartbeat from heartbeat manager - wheather node is
 			// alive
 			// increment the value -- initial 0
-			//value++;
+			// value++;
 
 			// get aliveNodes
 			int aliveNodes = HeartbeatManager.getInstance().getAliveNodes();
@@ -227,12 +230,12 @@ public class ResourceFactory {
 
 					RoundRobin.setNextNode(value);
 					System.out.println("roundrobin -- set node" + value);
-					int node  = value;
+					int node = value;
 					value++;
 					return node;
 				} else {
 					// if node is not alive -- check node
-					value = 0;
+					value = value-1 == aliveNodes ? 0 : value++;
 				}
 			}
 		}

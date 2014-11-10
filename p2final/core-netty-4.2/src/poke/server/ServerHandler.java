@@ -44,7 +44,8 @@ import poke.server.queue.QueueFactory;
  * @author gash
  * 
  */
-public class ServerHandler extends SimpleChannelInboundHandler<eye.Comm.Request> {
+public class ServerHandler extends
+		SimpleChannelInboundHandler<eye.Comm.Request> {
 	protected static Logger logger = LoggerFactory.getLogger("server");
 
 	private ChannelQueue queue;
@@ -54,11 +55,13 @@ public class ServerHandler extends SimpleChannelInboundHandler<eye.Comm.Request>
 	}
 
 	@Override
-	public void channelRead0(ChannelHandlerContext ctx, eye.Comm.Request req) throws Exception {
-		
-		//System.out.println(req);
+	public void channelRead0(ChannelHandlerContext ctx, eye.Comm.Request req)
+			throws Exception {
+
+		// System.out.println(req);
 		// processing is deferred to the worker threads
-		//logger.info("---> server got a message from " + req.getHeader().getOriginator());
+		// logger.info("---> server got a message from " +
+		// req.getHeader().getOriginator());
 		queueInstance(ctx.channel()).enqueueRequest(req, ctx.channel());
 	}
 
@@ -68,7 +71,8 @@ public class ServerHandler extends SimpleChannelInboundHandler<eye.Comm.Request>
 	}
 
 	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
+			throws Exception {
 		logger.error("Unexpected exception from downstream.", cause);
 		ctx.close();
 	}
@@ -89,13 +93,15 @@ public class ServerHandler extends SimpleChannelInboundHandler<eye.Comm.Request>
 			queue = QueueFactory.getInstance(channel);
 
 			// on close remove from queue
-			channel.closeFuture().addListener(new ConnectionClosedListener(queue));
+			channel.closeFuture().addListener(
+					new ConnectionClosedListener(queue));
 		}
 
 		return queue;
 	}
 
-	public static class ConnectionClosedListener implements ChannelFutureListener {
+	public static class ConnectionClosedListener implements
+			ChannelFutureListener {
 		private ChannelQueue sq;
 
 		public ConnectionClosedListener(ChannelQueue sq) {

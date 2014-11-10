@@ -109,19 +109,24 @@ public class ChangRobertsElection implements Election {
 			if (logger.isDebugEnabled()) {
 			}
 
-			System.out.println("\n\n*********************************************************");
+			System.out
+					.println("\n\n*********************************************************");
 			System.out.println(" CHANG-ROBERTS ELECTION: Election declared");
 			System.out.println(" FLOOD MAX ELECTION: Election declared");
 			System.out.println("   Election ID:  " + req.getElectId());
-			System.out.println("   Rcv from:     Node " + mgmt.getHeader().getOriginator());
-			System.out.println("   Expires:      " + new Date(req.getExpires()));
+			System.out.println("   Rcv from:     Node "
+					+ mgmt.getHeader().getOriginator());
+			System.out
+					.println("   Expires:      " + new Date(req.getExpires()));
 			System.out.println("   Nominates:    Node " + req.getCandidateId());
 			System.out.println("   Desc:         " + req.getDesc());
 			System.out.print("   Routing tbl:  [");
 			for (RoutingPath rp : rtes)
-				System.out.print("Node " + rp.getNodeId() + " (" + rp.getTime() + "), ");
+				System.out.print("Node " + rp.getNodeId() + " (" + rp.getTime()
+						+ "), ");
 			System.out.println("]");
-			System.out.println("*********************************************************\n\n");
+			System.out
+					.println("*********************************************************\n\n");
 
 			current = new ElectionState();
 			current.electionID = createElectionID();
