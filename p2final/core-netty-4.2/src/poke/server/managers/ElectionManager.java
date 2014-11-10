@@ -243,7 +243,9 @@ public class ElectionManager implements ElectionListener {
 		if (success) {
 			logger.info("----> the leader is " + leaderID);
 			this.leaderNode = leaderID;
-			//mnkClient.setLeader(leaderID);
+			if(this.leaderNode == conf.getNodeId()){
+				// create cluster object and than send it to cluster service implementation
+			} 
 		}
 		election.clear();
 	}

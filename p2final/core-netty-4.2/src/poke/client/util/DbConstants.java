@@ -23,5 +23,9 @@ public interface DbConstants {
 	static final String MAPPER_REPLICATE_DB_USER = "mapperReplicateDbUser";
 	static final String MAPPER_REPLICATE_DB_PASS = "mapperReplicateDbPass";
 
+	static final String CLUSTER_MAPPER_MAIN_DB_URL = "clusterMapperMainDbUrl"; 
+	static final String CLUSTER_MAPPER_MAIN_DB_USER = "clusterMapperMainDbUser";
+	static final String CLUSTER_MAPPER_MAIN_DB_PASS = "clusterMapperMainDbPass";
+	
 	static final String DB_PROPERTIES_FILE = "com/lifeForce/storage/db.properties";
 }

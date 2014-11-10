@@ -30,7 +30,52 @@ public class DbConfigurations {
 	private static String mapperReplicatedDbUser ;
 	private static String mapperReplicatedDbPass ;
 	
+	private static String clusterMapperMainDbUrl ; 
+	private static String clusterMapperMainDbUser ;
+	private static String clusterMapperMainDbPass ;
 	
+	/**
+	 * @return the clusterMapperMainDbUrl
+	 */
+	public static String getClusterMapperMainDbUrl() {
+		return clusterMapperMainDbUrl;
+	}
+
+	/**
+	 * @param clusterMapperMainDbUrl the clusterMapperMainDbUrl to set
+	 */
+	public static void setClusterMapperMainDbUrl(String clusterMapperMainDbUrl) {
+		DbConfigurations.clusterMapperMainDbUrl = clusterMapperMainDbUrl;
+	}
+
+	/**
+	 * @return the clusterMapperMainDbUser
+	 */
+	public static String getClusterMapperMainDbUser() {
+		return clusterMapperMainDbUser;
+	}
+
+	/**
+	 * @param clusterMapperMainDbUser the clusterMapperMainDbUser to set
+	 */
+	public static void setClusterMapperMainDbUser(String clusterMapperMainDbUser) {
+		DbConfigurations.clusterMapperMainDbUser = clusterMapperMainDbUser;
+	}
+
+	/**
+	 * @return the clusterMapperMainDbPass
+	 */
+	public static String getClusterMapperMainDbPass() {
+		return clusterMapperMainDbPass;
+	}
+
+	/**
+	 * @param clusterMapperMainDbPass the clusterMapperMainDbPass to set
+	 */
+	public static void setClusterMapperMainDbPass(String clusterMapperMainDbPass) {
+		DbConfigurations.clusterMapperMainDbPass = clusterMapperMainDbPass;
+	}
+
 	public static void Initialize() throws DatabaseException{
 		
 		Properties props = null;
@@ -66,6 +111,10 @@ public class DbConfigurations {
 			DbConfigurations.setMapperReplicatedDbUser(props.getProperty(DbConstants.MAPPER_REPLICATE_DB_USER)); 
 			DbConfigurations.setMapperReplicatedDbPass(props.getProperty(DbConstants.MAPPER_REPLICATE_DB_PASS)); 
 			
+
+			DbConfigurations.setClusterMapperMainDbUrl(props.getProperty(DbConstants.CLUSTER_MAPPER_MAIN_DB_URL)); 
+			DbConfigurations.setClusterMapperMainDbUser(props.getProperty(DbConstants.CLUSTER_MAPPER_MAIN_DB_USER)); 
+			DbConfigurations.setClusterMapperMainDbPass(props.getProperty(DbConstants.CLUSTER_MAPPER_MAIN_DB_PASS)); 
 		
 	}
 
