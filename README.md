@@ -17,3 +17,4 @@ Directory | Description
 Notes:
 ------
 - Netty should be :no_entry_sign:
+- ProtoBuf is _interesting_
