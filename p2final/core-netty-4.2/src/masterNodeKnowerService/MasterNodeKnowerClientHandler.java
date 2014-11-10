@@ -6,6 +6,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import masterNodeKnowerService.MasterNodeKnowerProtocol.MasterNode;
 import masterNodeKnowerService.MasterNodeKnowerProtocol.DNSRequest;
@@ -13,6 +14,9 @@ import masterNodeKnowerService.MasterNodeKnowerProtocol.DNSResponse;
 
 public class MasterNodeKnowerClientHandler extends SimpleChannelInboundHandler<DNSResponse> {
 
+	private static int WAIT = 1200;
+	private static TimeUnit TIMEUNIT = TimeUnit.MILLISECONDS;
+	
     // Stateful properties
     private volatile Channel channel;
     private final BlockingQueue<DNSResponse> answer = new LinkedBlockingQueue<DNSResponse>();
@@ -61,23 +65,17 @@ public class MasterNodeKnowerClientHandler extends SimpleChannelInboundHandler<D
     
     private DNSResponse waitForResponse(){
     	DNSResponse response;
-        boolean interrupted = false;
-        for (;;) {
-            try {
-            	System.out.println("synchronous block.");
-                response = answer.take();
-                System.out.println("unblocked.");
-                break;
-            } catch (InterruptedException ignore) {
-                interrupted = true;
-            }
+       
+        try {
+        	System.out.println("wait.");
+            response = answer.poll(WAIT, TIMEUNIT);
+            System.out.println("unblocked.");
+            return response;
+        } catch (InterruptedException ignore) {
+        
         }
-
-        if (interrupted) {
-            Thread.currentThread().interrupt();
-        }
-
-        return response;
+        
+        return null;
     }
 
     @Override

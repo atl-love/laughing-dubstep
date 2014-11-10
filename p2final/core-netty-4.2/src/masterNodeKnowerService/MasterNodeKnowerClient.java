@@ -20,7 +20,8 @@ public final class MasterNodeKnowerClient {
 
 	private static final String HOST = "127.0.0.1";
     private static final int PORT = 5353;
-    private static final int PAUSE = 10;
+    private static final int SLEEP = 10;
+    private static final int MAX_ERROR_DELAY = 1024;
     private static Logger logger = LoggerFactory.getLogger("MasterNodeKnowerClient");
     private static MasterNodeKnowerClient client = new MasterNodeKnowerClient();
     
@@ -81,6 +82,8 @@ public final class MasterNodeKnowerClient {
     	
     	
     	private MasterNodeKnowerClient client;
+    	private int delay = 0;
+    	
 
     	
     	public Worker(MasterNodeKnowerClient client){
@@ -93,14 +96,17 @@ public final class MasterNodeKnowerClient {
     		MasterNode m = null;
     		
     		while (true) {
+    			
         		try{
         			
-        			//logger.info("Checking queue");
-            		if(!client.queue.isEmpty()){
+        			Thread.sleep(delay); 
+        			
+        			m = client.queue.peek();
+        			
+            		if(m != null){
             			
-            			logger.info("Queue not empty");
+            			logger.info("Queue length: " + client.queue.size());
             			
-            			m = client.queue.remove();
             			
             			 // Make a new connection.
                         Channel ch = client.b.connect(HOST, PORT).sync().channel();
@@ -122,20 +128,32 @@ public final class MasterNodeKnowerClient {
                         
                         logger.info("Finish task");
                         
-                        // Reset m
-                        m = null;
+                        // Remove from queue
+                        client.queue.remove(m);
+                    
+                        // Circuit breaker
+                        delay /= 2;
+            		} else {
+            			// nothing to do
+            			delay = SLEEP;
             		}
-            		else {
-            			//logger.info("Queue empty");
-            		}
-            		Thread.sleep(PAUSE);
         		}
         		catch (InterruptedException e){
-        			if (m != null) { // Interrupted in the middle of syncing
-        				client.queue.add(m);
-        				m = null;
+        			logger.info(e.toString());
+        			
+        		}
+        		catch (Exception e){
+        			logger.info(e.toString());
+        			
+        			// Circuit breaker
+        			if (delay == 0){
+        				delay = 1;
+        			}
+        			else if (delay <= MAX_ERROR_DELAY / 2){
+        				delay *= 2;
         			}
         		}
+        	
     		}
     	}
     }
