@@ -86,8 +86,12 @@ public class ReplicatedDbServiceImplementation {
 		
 		try {
 
+			String safeSql = "SET SQL_SAFE_UPDATES=0;";
+			ps = conn.prepareStatement(safeSql);
+			ps.executeQuery();
+			
+			
 			String sql = "DELETE FROM mapper where mapper.uuid = ?";
-
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, uuid);
 

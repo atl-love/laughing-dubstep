@@ -155,6 +155,11 @@ public class BlobStorageServiceImplementation implements BlobStorageService {
 
 		try {
 
+			String safeSql = "SET SQL_SAFE_UPDATES=0;";
+			ps = conn.prepareStatement(safeSql);
+			ps.executeQuery();
+			
+			
 			String sql = "DELETE FROM blobStorage where blobStorage.uuid = ?";
 
 			ps = conn.prepareStatement(sql);

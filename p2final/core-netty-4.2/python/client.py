@@ -5,7 +5,6 @@ import struct
 import base64
 
 
-
 def buildSaveImageJob(iname, data, ownerId):
 
     jobId = str(int(round(time.time() * 1000)))
@@ -103,20 +102,26 @@ if __name__ == '__main__':
 
 
     elif input == "2":
-        gImage = raw_input("Enter your UUID to get Image:\n ")
+        gImage = raw_input("Enter UUID to get Image:\n ")
         getImagejob=buildGetImageJob(gImage)
         result = sendMsg(getImagejob, port, host)
         print result.body.photoPayload.uuid
+        print("The name of image retrieved ::\n")               #additional part
+        print result.body.photoPayload.name
+        print("The retrieved image::\n")
+        print result.body.photoPayload.data
 
 
     elif input == "3":
         dImage= raw_input("Enter UUID for image to delete:\n ")
         delImagejob=buildDeleteImageJob(dImage)
         result=sendMsg(delImagejob, port, host)
-        print result.body.photoPayload.uuid
-
-
-
+        print("The response flag received:\n")
+        print result.header.photoHeader.responseFlag
+        if result.header.photoHeader.responseFlag == 0:
+            print("The image has been deleted successfully !!")
+        elif result.header.photoHeader.responseFlag == 1:
+            print("The image was not deleted successfully !!")
 
 
 def getBroadcastMsg(port):

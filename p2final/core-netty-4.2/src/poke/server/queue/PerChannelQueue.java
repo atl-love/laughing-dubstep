@@ -266,6 +266,8 @@ public class PerChannelQueue implements ChannelQueue {
 								&& !req.getHeader().hasReplyMsg()) {
 								//||req.getHeader().getPhotoHeader().hasEntryNode() ) {
 
+							//add value entry node
+							
 							Resource rsc = ResourceFactory.getInstance()
 									
 									.resourceInstance(req.getHeader());

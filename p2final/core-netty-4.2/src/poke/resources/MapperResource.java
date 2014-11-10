@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import poke.server.conf.NodeDesc;
 import poke.server.conf.ServerConf;
+import poke.server.managers.HeartbeatManager;
 import poke.server.queue.PerChannelQueue;
 import poke.server.resources.Resource;
 
@@ -81,7 +82,7 @@ public class MapperResource implements Resource {
 						.getPhotoPayload().getUuid());
 
 				// image mapping found in the database
-				if (null != mapper) {
+				if (null != mapper && HeartbeatManager.getInstance().isNodeAlive((int) mapper.getNodeId())) {
 
 					if (mapper.getNodeId() == cfg.getNodeId()) {
 						// create the request builder

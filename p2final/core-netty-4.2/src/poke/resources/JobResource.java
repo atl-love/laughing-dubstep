@@ -240,15 +240,24 @@ public class JobResource implements Resource {
 					headerBuilder.setReplyMsg(RESPONSE);
 
 					try {
-						blobService.deleteBlobStorageByUuid(request.getBody()
-								.getPhotoPayload().getUuid());
 
-						mapperService.deleteMapper(request.getBody()
-								.getPhotoPayload().getUuid());
+						Boolean blobSuccess = blobService
+								.deleteBlobStorageByUuid(request.getBody()
+										.getPhotoPayload().getUuid());
 
-						// set response as success in photoheader
-						photoHeaderBuilder
-								.setResponseFlag(ResponseFlag.success);
+						Boolean mapperSuccess = mapperService
+								.deleteMapper(request.getBody()
+										.getPhotoPayload().getUuid());
+
+						if (blobSuccess && mapperSuccess) {
+							// set response as success in photoheader
+							photoHeaderBuilder
+									.setResponseFlag(ResponseFlag.success);
+						} else {
+							// set response as failure in photoheader
+							photoHeaderBuilder
+									.setResponseFlag(ResponseFlag.failure);
+						}
 
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
