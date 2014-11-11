@@ -15,11 +15,25 @@
  */
 package poke.server.queue;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.handler.codec.protobuf.ProtobufDecoder;
+import io.netty.handler.codec.protobuf.ProtobufEncoder;
 
 import java.lang.Thread.State;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.slf4j.Logger;
@@ -28,13 +42,19 @@ import org.slf4j.LoggerFactory;
 import poke.resources.ForwardResource;
 import poke.resources.JobResource;
 import poke.resources.MapperResource;
+import poke.resources.ForwardResource.ChannelHandler;
 import poke.server.managers.ElectionManager;
 import poke.server.resources.Resource;
 import poke.server.resources.ResourceFactory;
 
 import com.google.protobuf.GeneratedMessage;
+import com.lifeForce.storage.ClusterMapperManager;
+import com.lifeForce.storage.ClusterMapperStorage;
+import com.lifeForce.storage.DbConfigurations;
 
 import eye.Comm.PhotoHeader.ResponseFlag;
+import eye.Comm.Header;
+import eye.Comm.PhotoHeader;
 import eye.Comm.Request;
 
 /**
@@ -65,6 +85,7 @@ public class PerChannelQueue implements ChannelQueue {
 	private InboundWorker iworker;
 	private final String FORWARD = "forward";
 	private final String RESPONSE = "response";
+	private final String MY_ENTRY_NODE_CHECK = "true";
 
 	// not the best method to ensure uniqueness
 	private ThreadGroup tgroup = new ThreadGroup("ServerQueue-"
@@ -251,83 +272,192 @@ public class PerChannelQueue implements ChannelQueue {
 					break;
 
 				try {
-					System.out.println("--------------------------------->>>>> per channel queue ");
+					System.out
+							.println("--------------------------------->>>>> per channel queue ");
 					// block until a message is enqueued
 					GeneratedMessage msg = sq.inbound.take();
 
-					System.out.println("-------------------------->>>>> take");
-					
 					// process request and enqueue response
 					if (msg instanceof Request) {
 						Request req = ((Request) msg);
 
-						// if leader and entryNode - (flag - can be changed) -check request is new  
-						if(ElectionManager.getInstance().whoIsTheLeader()!=null //&& ServerManager.getInstance().getNodeId() == ElectionManager.getInstance().whoIsTheLeader()  
+						// if leader and entryNode - (flag - can be changed)
+						// -check request is new
+						if (ElectionManager.getInstance().whoIsTheLeader() != null
 								&& !req.getHeader().hasReplyMsg()) {
-								//||req.getHeader().getPhotoHeader().hasEntryNode() ) {
 
-							//add value entry node
-							
+							// create the request builder
+							Request.Builder requestBuilder = Request
+									.newBuilder(req);
+
+							// create the header builder
+							eye.Comm.Header.Builder headerBuilder = Header
+									.newBuilder(req.getHeader());
+
+							// create the photo header builder
+							eye.Comm.PhotoHeader.Builder photoHeaderBuilder = PhotoHeader
+									.newBuilder(req.getHeader()
+											.getPhotoHeader());
+
+							// if entry node doesnt have a value i.e. you are
+							// the connected to the client
+							if (!req.getHeader().getPhotoHeader()
+									.hasEntryNode()) {
+
+								photoHeaderBuilder.setEntryNode(String
+										.valueOf(DbConfigurations
+												.getClusterId()));
+							} else {
+
+								// append your cluster id in the entry node so
+								// you can know you have seen this request
+
+								String visitedNode = req.getHeader()
+										.getPhotoHeader().getEntryNode();
+								visitedNode += ","
+										+ String.valueOf(DbConfigurations
+												.getClusterId());
+								
+								photoHeaderBuilder.setEntryNode(String
+										.valueOf(visitedNode));
+							}
+
+							// build photoheader builder
+							headerBuilder.setPhotoHeader(photoHeaderBuilder
+									.build());
+
+							// build header
+							requestBuilder.setHeader(headerBuilder.build());
+
+							// build request
+							req = requestBuilder.build();
+
+							// add value entry node
+
 							Resource rsc = ResourceFactory.getInstance()
-									
-									.resourceInstance(req.getHeader());
-							
+
+							.resourceInstance(req.getHeader());
+
 							// if job resource process locally
 							if (rsc instanceof JobResource) {
 								Request reply = rsc.process(req);
 								sq.enqueueResponse(reply, null);
 							}
-							
+
 							// if forward resource - forward it
 							if (rsc instanceof ForwardResource) {
 								((ForwardResource) rsc).setSq(sq);
-								 rsc.process(req);
+								rsc.process(req);
 							}
 
-							// if mapper resource - mapper get mapping from mapping db to get node location where image is stored
+							// if mapper resource - mapper get mapping from
+							// mapping db to get node location where image is
+							// stored
 							if (rsc instanceof MapperResource) {
 								((MapperResource) rsc).getSq();
 								Request reply = rsc.process(req);
-								
-								// if mapper found uuid in map and header has node location where image is store - call Forward Resource
-								if(reply.getHeader().getReplyMsg().equals(FORWARD) && reply.getHeader().getPhotoHeader().getResponseFlag() == ResponseFlag.success){
+
+								// if mapper found uuid in map and header has
+								// node location where image is store - call
+								// Forward Resource
+								if (reply.getHeader().getReplyMsg()
+										.equals(FORWARD)
+										&& reply.getHeader().getPhotoHeader()
+												.getResponseFlag() == ResponseFlag.success) {
 									ForwardResource fwdrsc = new ForwardResource();
 									fwdrsc.setSq(sq);
 									fwdrsc.process(reply);
-									
-//									((ForwardResource) rsc).setSq(sq);
-//									rsc.process(reply);
+
+									// ((ForwardResource) rsc).setSq(sq);
+									// rsc.process(reply);
 								}
-								
-								// if mapper found uuid in map and image is stored in local - call Job Resource
-								if(reply.getHeader().getReplyMsg().equals(RESPONSE) && reply.getHeader().getPhotoHeader().getResponseFlag() == ResponseFlag.success)
-								{
+
+								// if mapper found uuid in map and image is
+								// stored in local - call Job Resource
+								if (reply.getHeader().getReplyMsg()
+										.equals(RESPONSE)
+										&& reply.getHeader().getPhotoHeader()
+												.getResponseFlag() == ResponseFlag.success) {
 									((JobResource) rsc).process(req);
 									sq.enqueueResponse(reply, null);
 								}
-								
-								//if mapper didnt found mapping of image and node response failure to client
-								if(reply.getHeader().getPhotoHeader().getResponseFlag() == ResponseFlag.failure){
-									sq.enqueueResponse(reply, null);
-								}
-								
-							}
 
-						}else{
-							// secondary nodes
-							
-							System.out.println("---------------> inside secondary ");
-							System.out.println("---> originator : "+req.getHeader().getOriginator());
-							System.out.println("---> leader : "+ElectionManager.getInstance().whoIsTheLeader() );
-							System.out.println("---> reply msg : "+req.getHeader().getReplyMsg());
-							
-							
-							if(req.getHeader().getOriginator() == ElectionManager.getInstance().whoIsTheLeader() && req.getHeader().getReplyMsg().equals(FORWARD)){
-								
-								Resource rsc = ResourceFactory.getInstance()
+								// if mapper didnt found mapping of image and
+								// node response failure to client
+								if (reply.getHeader().getPhotoHeader()
+										.getResponseFlag() == ResponseFlag.failure) {
+
+									ClusterMapperStorage nextClusterLeader = ClusterMapperManager
+											.getClusterDetails(req.getHeader()
+													.getPhotoHeader()
+													.getEntryNode());
+
+									if (nextClusterLeader != null) {
+										// you can still forward this request 
+										// to other leaders in the cluster
+
+										Bootstrap bootStrap = new Bootstrap();
+										NioEventLoopGroup group = new NioEventLoopGroup();
+										bootStrap
+												.group(group)
+												.channel(NioSocketChannel.class)
+												.handler(
+														new ChannelHandler(
+																this.sq));
+										bootStrap
+												.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
+														10000);
+										bootStrap
+												.option(ChannelOption.TCP_NODELAY,
+														true);
+										bootStrap.option(
+												ChannelOption.SO_KEEPALIVE,
+												true);
+
+										SocketAddress mySocketAddress = new InetSocketAddress(
+												nextClusterLeader
+														.getLeaderHostAddress(),
+												nextClusterLeader.getPort());
+										ChannelFuture futureChannel = bootStrap
+												.connect(mySocketAddress)
+												.syncUninterruptibly();
+										Channel ch = futureChannel.channel();
+										futureChannel.awaitUninterruptibly();
+										ch.writeAndFlush(req);
+
+									} else {
+										// all leaders have seen the request
+										// - set failure is done - just
+										// enqueue the response
 										
-										.resourceInstance(req.getHeader());
-								
+										sq.enqueueResponse(reply, null);
+									}
+
+								}
+
+							}
+						} else {
+							// secondary nodes
+
+							System.out
+									.println("---------------> inside secondary ");
+							System.out.println("---> originator : "
+									+ req.getHeader().getOriginator());
+							System.out.println("---> leader : "
+									+ ElectionManager.getInstance()
+											.whoIsTheLeader());
+							System.out.println("---> reply msg : "
+									+ req.getHeader().getReplyMsg());
+
+							if (req.getHeader().getOriginator() == ElectionManager
+									.getInstance().whoIsTheLeader()
+									&& req.getHeader().getReplyMsg()
+											.equals(FORWARD)) {
+
+								Resource rsc = ResourceFactory.getInstance()
+
+								.resourceInstance(req.getHeader());
+
 								// if job resource process locally
 								if (rsc instanceof JobResource) {
 									Request reply = rsc.process(req);
@@ -366,5 +496,36 @@ public class PerChannelQueue implements ChannelQueue {
 			// sq.enqueueResponse(testReq, null);
 			sq.shutdown(true);
 		}
+	}
+
+	public class ChannelHandler extends ChannelInitializer<Channel> {
+		private ChannelQueue sq;
+
+		public ChannelHandler(ChannelQueue sq) {
+			this.sq = sq;
+		}
+
+		@Override
+		protected void initChannel(Channel channel) throws Exception {
+
+			ChannelPipeline pipeline = channel.pipeline();
+			pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(
+					67108864, 0, 4, 0, 4));
+			pipeline.addLast("protobufDecoder", new ProtobufDecoder(
+					eye.Comm.Request.getDefaultInstance()));
+			pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
+			pipeline.addLast("protobufEncoder", new ProtobufEncoder());
+
+			pipeline.addLast(new SimpleChannelInboundHandler<eye.Comm.Request>() {
+				protected void channelRead0(ChannelHandlerContext ctx,
+						eye.Comm.Request msg) throws Exception {
+					System.out
+							.println("---------------->inside channel handler");
+					sq.enqueueResponse(msg, null);
+				}
+			});
+
+		}
+
 	}
 }

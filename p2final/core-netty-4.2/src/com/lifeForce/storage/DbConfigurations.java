@@ -34,6 +34,37 @@ public class DbConfigurations {
 	private static String clusterMapperMainDbUser ;
 	private static String clusterMapperMainDbPass ;
 	
+	private static String ip;
+	private static int clusterId; 
+	
+	/**
+	 * @return the ip
+	 */
+	public static String getIp() {
+		return ip;
+	}
+
+	/**
+	 * @param ip the ip to set
+	 */
+	public static void setIp(String ip) {
+		DbConfigurations.ip = ip;
+	}
+
+	/**
+	 * @return the clusterId
+	 */
+	public static int getClusterId() {
+		return clusterId;
+	}
+
+	/**
+	 * @param clusterId the clusterId to set
+	 */
+	public static void setClusterId(int clusterId) {
+		DbConfigurations.clusterId = clusterId;
+	}
+
 	/**
 	 * @return the clusterMapperMainDbUrl
 	 */
@@ -115,6 +146,9 @@ public class DbConfigurations {
 			DbConfigurations.setClusterMapperMainDbUrl(props.getProperty(DbConstants.CLUSTER_MAPPER_MAIN_DB_URL)); 
 			DbConfigurations.setClusterMapperMainDbUser(props.getProperty(DbConstants.CLUSTER_MAPPER_MAIN_DB_USER)); 
 			DbConfigurations.setClusterMapperMainDbPass(props.getProperty(DbConstants.CLUSTER_MAPPER_MAIN_DB_PASS)); 
+		
+			DbConfigurations.setIp(props.getProperty(DbConstants.IP)); 
+			DbConfigurations.setClusterId(Integer.valueOf(props.getProperty(DbConstants.CLUSTER_ID))); 
 		
 	}
 

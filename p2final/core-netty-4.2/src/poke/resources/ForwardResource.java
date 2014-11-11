@@ -99,6 +99,9 @@ public class ForwardResource implements Resource {
 	@Override
 	public Request process(Request request) {
 
+		System.out
+		.println("--------------------------------->>>>> forward resource ");
+		
 		if (request != null && request.getBody().hasPhotoPayload()) {
 
 			eye.Comm.Header.Builder headerBuilder = Header

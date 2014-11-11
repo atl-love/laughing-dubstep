@@ -27,5 +27,8 @@ public interface DbConstants {
 	static final String CLUSTER_MAPPER_MAIN_DB_USER = "clusterMapperMainDbUser";
 	static final String CLUSTER_MAPPER_MAIN_DB_PASS = "clusterMapperMainDbPass";
 	
+	static final String IP = "ip";
+	static final String CLUSTER_ID = "clusterId";
+	
 	static final String DB_PROPERTIES_FILE = "com/lifeForce/storage/db.properties";
 }

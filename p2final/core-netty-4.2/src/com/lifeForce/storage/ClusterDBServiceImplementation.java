@@ -3,30 +3,44 @@
  */
 package com.lifeForce.storage;
 
-import java.sql.Connection; 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 
 public class ClusterDBServiceImplementation {
-
+	
+	private static ClusterDBServiceImplementation instance = null;
+	private static final Object lock = new Object();
+	
 	Connection conn = null;
-	Statement stmt = null;
 
-	public ClusterDBServiceImplementation() {
+	public static ClusterDBServiceImplementation getInstance() {
+		
+		if(instance == null) {
+			synchronized (lock) {
+				if(instance == null) {
+					instance = new ClusterDBServiceImplementation();
+				}
+			}
+		}
+		return instance;
+	}
+	
+	private ClusterDBServiceImplementation() {
 		conn = getDbConnection();
 	}
 	
 	public void createMapperStorage(ClusterMapperStorage clusterMapper)
 			throws Exception {
 
-		stmt = conn.createStatement();
+		Statement stmt = conn.createStatement();
 		PreparedStatement ps = null;
+		ClusterMapperStorage dbCusterMapper =null;
 
 		System.out.println("%%%%%%%%%%%%%%%%%% IN createMapperStorage %%%%%%%%%%%%%%");
 		
@@ -39,17 +53,28 @@ public class ClusterDBServiceImplementation {
 			ps.setInt(1, clusterMapper.getClusterID());
 
 			ResultSet rs = ps.executeQuery();
-
+			
 			// Record exists in database then update ELSE insert it
 			if(rs.next()) {
-				System.out.println("%%%%%%%%%%% UPDATING Current List ^^^^^^^^^^^^^^^^^"+ clusterMapper.getPort());
-				updateClusterMapper(clusterMapper.getClusterID(), clusterMapper.getLeaderHostAddress(), clusterMapper.getPort());
+				dbCusterMapper = new ClusterMapperStorage();
+				dbCusterMapper.setClusterID(rs.getInt("clusterId"));
+				dbCusterMapper.setLeaderHostAddress(rs.getString("leaderHostAddress"));
+				dbCusterMapper.setPort(rs.getInt("port")); 
+				
+				if(!dbCusterMapper.getLeaderHostAddress().equals(clusterMapper.getLeaderHostAddress()) || dbCusterMapper.getPort() !=clusterMapper.getPort() ){
+					System.out.println("%%%%%%%%%%% UPDATING Current List ^^^^^^^^^^^^^^^^^"+ clusterMapper.getPort());
+					updateClusterMapper(clusterMapper.getClusterID(), clusterMapper.getLeaderHostAddress(), clusterMapper.getPort());
+				}
+				
 			} 
 			else {
 				
 				conn.setAutoCommit(false);
-				String sql = " INSERT INTO `clusterMapper`(`clusterId`,`leaderHostAddress`,`port`) VALUES (?,?,?)";
+				String sql = " INSERT INTO clusterMapper(clusterId,leaderHostAddress,port) VALUES (?,?,?)";
 
+				if(ps != null) {
+					ps.close();
+				}
 				ps = conn.prepareStatement(sql);
 				ps.setInt(1, clusterMapper.getClusterID());
 				ps.setString(2, clusterMapper.getLeaderHostAddress());
@@ -59,41 +84,64 @@ public class ClusterDBServiceImplementation {
 				conn.commit();
 			}
 		} finally {
-			ps.close();
-			conn = null;
+			if(stmt != null)
+				stmt.close();
+			if(ps != null)
+				ps.close();
+//			conn = null;
 		} 
 	}
 	
 	
-	public List<ClusterMapperStorage> getClusterList(int selfClusterId)
+	public ClusterMapperStorage getClusterList(List<String> clusterNodes)
 			throws Exception {
 		
-		List<ClusterMapperStorage> clusterMapperList = new ArrayList<ClusterMapperStorage>();
+		
+		String values = "";
+		int countValues = clusterNodes.size();
+		while (countValues > 0) {
+			values += "?";
+			
+			if(countValues > 1) {
+				values += ", ";
+			}
+			countValues --;
+		}
+		
+		//List<ClusterMapperStorage> clusterMapperList = new ArrayList<ClusterMapperStorage>();
 		PreparedStatement ps = null;
+		ClusterMapperStorage clusterMapper =null;
 
 		try {
 
-			String sqlSelect = "SELECT * FROM clusterMapper where clusterMapper.clusterId != ?;";
+			String sqlSelect = "SELECT * FROM clusterMapper where clusterMapper.clusterId NOT IN ( "+values+") LIMIT 1;";
 
 			ps = conn.prepareStatement(sqlSelect);
-			ps.setInt(1, selfClusterId);
-
+			
+			int countClusterNodes = clusterNodes.size();
+			while (countClusterNodes > 0) {
+				ps.setInt(countClusterNodes, Integer.valueOf(clusterNodes.get(countClusterNodes-1)));
+				
+				countClusterNodes --;
+			}
+			
 			ResultSet rs = ps.executeQuery();
 
 			while(rs.next()) {
-				ClusterMapperStorage clusterMapper = new ClusterMapperStorage();
+				clusterMapper = new ClusterMapperStorage();
 				clusterMapper.setClusterID(rs.getInt("clusterId"));
 				clusterMapper.setLeaderHostAddress(rs.getString("leaderHostAddress"));
 				clusterMapper.setPort(rs.getInt("port"));
 				
-				clusterMapperList.add(clusterMapper);
+				//clusterMapperList.add(clusterMapper);
 			}
 
-			return clusterMapperList;
+			return clusterMapper;
 		} finally {
 			ps.close();
-			clusterMapperList = null;
-			conn = null;
+			//clusterMapperList = null;
+//			conn = null;
+			clusterMapper = null;
 		}
 	}
 
@@ -105,13 +153,13 @@ public class ClusterDBServiceImplementation {
 		
 		try {
 
-			String sql = "UPDATE cmpe275.clusterMapper cm SET cm.leaderHostAddress = ?, cm.port = ? where cm.clusterId = ?";
+			String sql = "UPDATE clusterMapper SET leaderHostAddress = ?, port = ? where clusterId = ?";
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, host);
 			ps.setInt(2, port);
 			ps.setInt(3, clusterId);
 			
-			ps.executeQuery();
+			int rowsAffected = ps.executeUpdate();
 			success = true;
 			return success;
 
@@ -119,12 +167,13 @@ public class ClusterDBServiceImplementation {
 			success = false;
 			return success;
 		} finally {
-			ps.close();
-			conn = null;
+			if(ps != null)
+				ps.close();
+//			conn = null;
 		}
 	}
 	
-	public Connection getDbConnection() {
+	private Connection getDbConnection() {
 		
 		try {
 
@@ -142,19 +191,6 @@ public class ClusterDBServiceImplementation {
 
 			exMain.printStackTrace();
 			System.out.println("Connection Backup replicated Db");
-
-//			try {
-//				Connection mainRepConn = DriverManager.getConnection(
-//						DbConfigurations.getMapperReplicatedDbUrl(),
-//						DbConfigurations.getMapperReplicatedDbUser(),
-//						DbConfigurations.getMapperReplicatedDbPass());
-//
-//				return mainRepConn;
-//				
-//			} catch (SQLException exRep) {
-//				exRep.printStackTrace(); 
-//			}
-
 		}
 		return null;
 	}

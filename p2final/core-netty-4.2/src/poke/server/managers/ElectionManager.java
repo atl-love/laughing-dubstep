@@ -21,6 +21,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.lifeForce.storage.ClusterMapperManager;
+import com.lifeForce.storage.ClusterMapperStorage;
+import com.lifeForce.storage.DbConfigurations;
+
 import poke.server.conf.ServerConf;
 import poke.server.election.Election;
 import poke.server.election.ElectionListener;
@@ -245,6 +249,7 @@ public class ElectionManager implements ElectionListener {
 			this.leaderNode = leaderID;
 			if(this.leaderNode == conf.getNodeId()){
 				// create cluster object and than send it to cluster service implementation
+				ClusterMapperManager.setClusterDetails(DbConfigurations.getIp(), conf.getPort());
 			} 
 		}
 		election.clear();

@@ -23,5 +23,6 @@
 	<classpathentry kind="lib" path="lib/hibernate-validator-4.2.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib/spring-data-jpa-1.7.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.34-bin.jar"/>
+	<classpathentry kind="lib" path="lib/postgresql-9.3-1102.jdbc3.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

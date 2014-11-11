@@ -3,18 +3,17 @@
  */
 package com.lifeForce.storage;
 
-
 public class ClusterMapperStorage {
 	private int clusterID;
 	private String leaderHostAddress;
 	private int port;
 
 	public ClusterMapperStorage() {
-		
+
 	}
-	
-	public ClusterMapperStorage(int cid, String host, int port) {
-		this.clusterID = cid;
+
+	public ClusterMapperStorage(String host, int port) {
+		this.clusterID = DbConfigurations.getClusterId();
 		this.leaderHostAddress = host;
 		this.port = port;
 	}
